@@ -11,7 +11,7 @@ const Search: React.FC = () => {
     };
 
     return (
-        <div className="relative flex items-center ml-14">
+        <div className="relative flex items-center ml-[170px]">
             <input
                 type="text"
                 className="flex-1 rounded-full bg-light py-2 pl-4 pr-48 font-main border-2 border-transparent focus:outline-none focus:ring-0 focus:border-hover-btn tansition ease"

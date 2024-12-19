@@ -11,13 +11,15 @@ const app = express();
 const allowOrigin = "http://localhost:5173";
 app.use(cors({
     origin: allowOrigin, 
-    methods: ['GET'],
+    methods: ['GET', 'POST', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'] 
 }));
 
 app.use(express.json());
 app.use(express.static(path.resolve(__dirname, 'static')));
-app.use(fileUpload());
+app.use(fileUpload({
+    createParentPath: true,
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use('/api', router);
 

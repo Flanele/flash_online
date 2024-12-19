@@ -2,6 +2,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/models');
 const ApiError = require('../error/ApiError');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path'); 
+const fs = require('fs');
 
 
 const generateJwt = (id, email, role) => {
@@ -67,6 +70,52 @@ class UserController {
             return next(ApiError.internal('Ошибка при авторизации'));
         }
         
+    };
+
+    async editUser(req, res, next) {
+        try {
+            const { username } = req.body;
+            let avatar_url = req.files?.img;
+            const userId = req.user.id; 
+    
+            const user = await User.findByPk(userId);
+            if (!user) {
+                return next(ApiError.badRequest('Пользователь не найден'));
+            }
+    
+            if (username) user.username = username;
+    
+            if (avatar_url) {
+                console.log('req.files:', req.files); 
+                const fileExtension = avatar_url.name.split('.').pop();
+                const filename = uuidv4() + '.' + fileExtension;
+    
+                const staticPath = path.resolve(__dirname, '..', 'static');
+                if (!fs.existsSync(staticPath)) {
+                    fs.mkdirSync(staticPath);
+                }
+    
+                avatar_url.mv(path.resolve(staticPath, filename), (err) => {
+                    if (err) {
+                        return next(ApiError.internal('Ошибка при загрузке изображения'));
+                    }
+                });
+    
+                user.avatar_url = `${filename}`;
+            }
+    
+            await user.save();
+    
+            return res.status(200).json({
+                email: user.email,
+                username: user.username,
+                avatar_url: user.avatar_url,
+                role: user.role,
+            });
+        } catch (error) {
+            console.log(error);
+            return next(ApiError.internal('Ошибка при редактировании'));
+        }
     };
 
     async check(req, res, next) {

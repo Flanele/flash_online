@@ -33,8 +33,16 @@ export const authApi = createApi({
                 method: 'GET',
             }),
         }),
+        editUser: builder.mutation<{ username: string; avatar_url?: string }, FormData>({
+            query: (formData) => ({
+                url: 'api/user',
+                method: 'PATCH',
+                body: formData,
+            }),
+        }),
+        
     }),
 });
 
 
-export const { useLoginMutation, useRegisterMutation, useCheckAuthQuery } = authApi;
+export const { useLoginMutation, useRegisterMutation, useCheckAuthQuery, useEditUserMutation } = authApi;

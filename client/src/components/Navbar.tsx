@@ -1,7 +1,4 @@
 import dots from '../assets/dots.svg';
-import messages from '../assets/messages.svg';
-import notifications from '../assets/notifications.svg';
-import friends from '../assets/friends.svg';
 import { Link } from "react-router-dom";
 
 import Search from "./Search";
@@ -12,6 +9,7 @@ import { useState } from 'react';
 import AuthModal from './AuthModal';
 import { RootState } from '../store/store';
 import { logout } from '../store/slices/authSlice';
+import ProfileBar from './ProfileBar';
 
 
 const NavBar: React.FC = () => {
@@ -47,15 +45,10 @@ const NavBar: React.FC = () => {
                         </div>
                         <Search />
                         <div className="flex items-center gap-[30px]">
-                            <button>
-                                <img src={messages} alt="messages" />
-                            </button>
-                            <button>
-                                <img src={notifications} alt="notifications" />
-                            </button>
-                            <button>
-                                <img src={friends} alt="friends" />
-                            </button>
+                            {isAuthenticated &&                                
+                               <ProfileBar />                          
+                            }
+                            
                             <button 
                                 className="flex items-center justify-center px-4 py-3 bg-light rounded ml-7 font-main text-base leading-none hover:bg-hover-btn hover:text-header transition-colors duration-400"
                                 onClick={isAuthenticated ? handleLogout : () => setIsAuthModalOpen(true)}
