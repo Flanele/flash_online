@@ -13,21 +13,21 @@ export const authApi = createApi({
         },
     }),
     endpoints: (builder) => ({
-        login: builder.mutation<{ token: string; avatar_url?: string | null; username: string }, { email: string; password: string }>({
+        login: builder.mutation<{token: string; id: number; avatar_url?: string | null; username: string }, { email: string; password: string }>({
             query: (credentials) => ({
                 url: 'api/user/login',
                 method: 'POST',
                 body: credentials,
             }),
         }),
-        register: builder.mutation<{ token: string; avatar_url?: string | null; username: string }, { email: string; password: string; username: string }>({
+        register: builder.mutation<{token: string; id: number; avatar_url?: string | null; username: string }, { email: string; password: string; username: string }>({
             query: (userData) => ({
                 url: 'api/user/registration',
                 method: 'POST',
                 body: userData,
             }),
         }),
-        checkAuth: builder.query<{ token: string; email: string; role: string; username: string; avatar_url?: string }, void>({
+        checkAuth: builder.query<{token: string; id: number; email: string; role: string; username: string; avatar_url?: string }, void>({
             query: () => ({
                 url: 'api/user/auth',
                 method: 'GET',

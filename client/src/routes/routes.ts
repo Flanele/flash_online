@@ -1,5 +1,6 @@
+import FavoritePage from "../pages/FavoritePage";
 import HomePage from "../pages/HomePage";
-import { HOME_ROUTE } from "../utils/consts";
+import { FAVORITE_ROUTE, HOME_ROUTE } from "../utils/consts";
 
 interface iRoute {
     path: string,
@@ -12,4 +13,11 @@ export const publicRoutes: iRoute[] = [
         Component: HomePage 
     },
  
+];
+
+export const authRoutes: iRoute[] = [
+    {
+        path: FAVORITE_ROUTE,
+        Component: FavoritePage
+    }
 ];

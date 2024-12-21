@@ -32,6 +32,7 @@ class UserController {
             const token = generateJwt(user.id, user.email, user.role);
             return res.status(201).json({ 
                 token,
+                id: user.id,
                 email: user.email,
                 role: user.role,
                 username: user.username,
@@ -60,6 +61,7 @@ class UserController {
             const token = generateJwt(user.id, user.email, user.role);
             return res.status(200).json({
                 token,
+                id: user.id,
                 email: user.email,
                 role: user.role,
                 username: user.username,
@@ -107,6 +109,7 @@ class UserController {
             await user.save();
     
             return res.status(200).json({
+                id: user.id,
                 email: user.email,
                 username: user.username,
                 avatar_url: user.avatar_url,
@@ -131,6 +134,7 @@ class UserController {
     
             return res.status(200).json({
                 token,
+                id: user.id,
                 email: user.email,
                 role: user.role,
                 username: user.username,

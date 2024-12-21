@@ -11,7 +11,7 @@ const app = express();
 const allowOrigin = "http://localhost:5173";
 app.use(cors({
     origin: allowOrigin, 
-    methods: ['GET', 'POST', 'PATCH'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'] 
 }));
 

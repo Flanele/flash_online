@@ -16,7 +16,7 @@ const App: React.FC = () => {
             if (data) {
                 dispatch(setAuth({
                     token,
-                    user: { email: data.email, role: data.role, username: data.username, avatar_url: data.avatar_url }
+                    user: {id: data.id, email: data.email, role: data.role, username: data.username, avatar_url: data.avatar_url }
                 }));
             } else if (error) {
                 dispatch(logout());
