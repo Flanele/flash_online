@@ -35,6 +35,11 @@ const FavoriteGame = sequelize.define('favorite_game', {
     ]
 });
 
+const Comment = sequelize.define('comment', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    text: { type: DataTypes.TEXT, allowNull: false }
+});
+
 User.hasMany(FavoriteGame); 
 FavoriteGame.belongsTo(User); 
 
@@ -44,6 +49,12 @@ FavoriteGame.belongsTo(Game);
 Game.belongsToMany(Genre, { through: 'game_genre', foreignKey: 'gameId' });
 Genre.belongsToMany(Game, { through: 'game_genre', foreignKey: 'genreId' });
 
+User.hasMany(Comment);
+Comment.belongsTo(User);
+
+Game.hasMany(Comment);
+Comment.belongsTo(Game);
+
 module.exports = {
-    User, Game, Genre, FavoriteGame
+    User, Game, Genre, FavoriteGame, Comment
 };

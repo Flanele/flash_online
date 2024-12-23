@@ -7,6 +7,8 @@ import menuReducer from './slices/menuSlice';
 import { authApi } from './services/authApi';
 import authSliceReducer from './slices/authSlice';
 import { favoriteApi } from './services/favoriteApi';
+import { commentApi } from './services/commentApi';
+import favoritesSliceReducer from './slices/favoritesSlice';
 
 export const store = configureStore({
     reducer: {
@@ -14,13 +16,15 @@ export const store = configureStore({
         [genreApi.reducerPath]: genreApi.reducer,
         [authApi.reducerPath]: authApi.reducer,
         [favoriteApi.reducerPath]: favoriteApi.reducer,
+        [commentApi.reducerPath]: commentApi.reducer,
         filterGenre: filterGenreReducer,
         filterTerm: filterTermReducer,
         menu: menuReducer,
-        auth: authSliceReducer
+        auth: authSliceReducer,
+        favorites: favoritesSliceReducer
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(api.middleware, genreApi.middleware, authApi.middleware, favoriteApi.middleware),  
+        getDefaultMiddleware().concat(api.middleware, genreApi.middleware, authApi.middleware, favoriteApi.middleware, commentApi.middleware),  
 });
 
 export type RootState = ReturnType<typeof store.getState>;

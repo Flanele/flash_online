@@ -55,11 +55,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         try {
             if (isLogin) {
                 const response = await login({ email, password }).unwrap();
-                dispatch(setAuth({ token: response.token, user: { email, role: 'user', username: response.username, avatar_url: response.avatar_url || null } }));
+                dispatch(setAuth({ token: response.token, user: { id: response.id, email, role: 'user', username: response.username, avatar_url: response.avatar_url || null } }));
                 localStorage.setItem('token', response.token);
             } else {
                 const response = await register({ email, password, username }).unwrap();
-                dispatch(setAuth({ token: response.token, user: { email, role: 'user', username, avatar_url: null } }));
+                dispatch(setAuth({ token: response.token, user: { id: response.id, email, role: 'user', username, avatar_url: null } }));
                 localStorage.setItem('token', response.token);
             }
             onClose();
@@ -82,7 +82,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         <label className="block text-sm font-medium">Email</label>
                         <input
                             type="email"
-                            className="w-full text-backgr mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full text-backgr mt-1 p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
                             placeholder="Enter your email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -93,7 +93,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                             <label className="block text-sm font-medium">Username</label>
                             <input
                                 type="text"
-                                className="w-full text-backgr mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full text-backgr mt-1 p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
                                 placeholder="Enter your username"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -104,7 +104,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         <label className="block text-sm font-medium">Password</label>
                         <input
                             type="password"
-                            className="w-full text-backgr mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full text-backgr mt-1 p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
                             placeholder="Enter your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -115,7 +115,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                             <label className="block text-sm font-medium">Confirm Password</label>
                             <input
                                 type="password"
-                                className="w-full text-backgr mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full text-backgr mt-1 p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
                                 placeholder="Confirm your password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -150,6 +150,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             </div>
         </div>
     );
+    
 };
 
 export default AuthModal;

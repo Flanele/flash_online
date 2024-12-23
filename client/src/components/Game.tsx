@@ -2,27 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useFetchGameQuery } from '../store/services/api';
 import { RootState } from '../store/store';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRef } from "react";
-import { useAddToFavoritesMutation, useCheckIsFavoriteQuery, useRemoveFromFavoritesMutation } from '../store/services/favoriteApi';
+import { useAddToFavoritesMutation, useRemoveFromFavoritesMutation } from '../store/services/favoriteApi';
+import Comments from './Comments';
+import { addGameToFavorites, removeGameFromFavorites } from '../store/slices/favoritesSlice';
 
 const Game: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { data: game, error, isLoading } = useFetchGameQuery(Number(id));
-    const { data: isFavoriteResponse, isLoading: isFavoriteLoading } = useCheckIsFavoriteQuery({ gameId: Number(id) });
+    const favoriteGames = useSelector((state: RootState) => state.favorites.favoriteGames);
+    const isAuthenticated = useSelector((state: RootState) => state.auth.token); 
     const [addToFavorites] = useAddToFavoritesMutation();
     const [removeFromFavorites] = useRemoveFromFavoritesMutation();
     const [isFavorite, setIsFavorite] = useState<boolean>(false); 
     const playerRef = useRef<any>(null);
     const menuOpen = useSelector((state: RootState) => state.menu.menuOpen);
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        if (isFavoriteResponse !== undefined) {
-            setIsFavorite(isFavoriteResponse); 
-        }
-    }, [isFavoriteResponse]);
+        setIsFavorite(favoriteGames.includes(Number(id)));
+    }, [favoriteGames, id]);
 
-    if (isLoading || isFavoriteLoading) {
+    if (isLoading) {
         return (
             <div className="flex items-center justify-center h-screen">
                 <div className="w-20 h-20 border-4 border-light border-dashed rounded-full animate-spin"></div>
@@ -31,14 +33,20 @@ const Game: React.FC = () => {
     }
 
     const toggleFavorite = async () => {
-        if (isFavorite) {
-            await removeFromFavorites({ gameId: Number(id) });
-            setIsFavorite(false); 
-        } else {
-            await addToFavorites({ gameId: Number(id) });
-            setIsFavorite(true); 
+        try {
+            if (isFavorite) {
+                await removeFromFavorites({ gameId: Number(id) }).unwrap(); 
+                dispatch(removeGameFromFavorites(Number(id))); 
+            } else {
+                await addToFavorites({ gameId: Number(id) }).unwrap(); 
+                dispatch(addGameToFavorites(Number(id))); 
+            }
+            setIsFavorite(!isFavorite); 
+        } catch (error) {
+            console.error("Failed to toggle favorite:", error);
         }
     };
+    
 
     const startGame = async () => {
         const container = document.querySelector("#flash-container");
@@ -116,22 +124,30 @@ const Game: React.FC = () => {
                 >
                     Pause
                 </button>
-                <button
-                    onClick={toggleFavorite}
-                    className={`ml-10 px-4 py-2 text-[20px] rounded ${
-                        isFavorite ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-400 hover:bg-gray-500'
-                    } text-white`}
-                >
-                    {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-                </button>
+                
+                {isAuthenticated && (
+                    <button
+                        onClick={toggleFavorite}
+                        className={`ml-10 px-4 py-2 text-[20px] rounded ${
+                            isFavorite ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-light hover:bg-hover-btn hover:text-nav'
+                        } text-white`}
+                    >
+                        {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                    </button>
+                )}
             </div>
             
             <div className='sm:container mx-auto mt-20'>
                 <p className='text-center'>{game.description}</p>
-            </div>           
+            </div>   
+
+            <div className='sm:container mx-auto mt-20'>
+                <Comments/>
+            </div>        
         </div>
     );
 };
+
 
 
 export default Game;

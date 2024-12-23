@@ -9,6 +9,7 @@ export default {
       colors: {
         'header': '#59469A',
         'light': '#7C65CB',
+        'lighter': '#EAE0FE',
         'text': '#C0BBD5',
         'nav': '#251C44',
         'backgr': '#140D2A',

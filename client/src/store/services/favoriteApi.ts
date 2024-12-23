@@ -3,8 +3,6 @@ import { Game } from './api';
 
 interface FavoriteGame {
     id: number;
-    createdAt: string;
-    updatedAt: string;
     userId: number;
     gameId: number;
     game: Game; 
@@ -43,11 +41,7 @@ interface FavoriteGame {
             }),
             invalidatesTags: [{ type: 'Favorite', id: 'all' }],
         }),
-        checkIsFavorite: builder.query<boolean, { gameId: number }>({
-            query: (game) => `api/favorite/${game.gameId}`,
-            providesTags: (result, error, { gameId }) => [{ type: 'Favorite', id: gameId }],
-        })
     })
 });
 
-export const { useFetchFavoritesQuery, useAddToFavoritesMutation, useCheckIsFavoriteQuery, useRemoveFromFavoritesMutation } = favoriteApi;
+export const { useFetchFavoritesQuery, useAddToFavoritesMutation, useRemoveFromFavoritesMutation } = favoriteApi;

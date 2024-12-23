@@ -15,7 +15,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
     const dispatch = useDispatch();
 
     const [username, setUsername] = useState(user?.username);
-    const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar_url);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar_url ?? null);
     const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
@@ -47,6 +47,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
             }
 
             const updatedUserWithOldData = {
+                id: user.id,
                 email: user.email,
                 role: user.role,
                 username: updatedUser.username,
@@ -54,7 +55,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
             };
 
             dispatch(setAuth({ token: localStorage.getItem('token')!, user: updatedUserWithOldData }));
-            setAvatarUrl(updatedUser.avatar_url);
+            setAvatarUrl(updatedUser.avatar_url ?? null);
             setPreviewAvatarUrl(null);
             onClose();
         } catch (error) {
@@ -98,7 +99,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
                                 {username ? getUserInitials(username) : 'U'}
                             </span>
                         )}
-
+    
                         <label
                             htmlFor="avatar-upload"
                             className="absolute inset-0 bg-black bg-opacity-50 text-white flex items-center justify-center text-sm opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity cursor-pointer"
@@ -118,7 +119,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
                         <input
                             type="text"
                             id="username"
-                            className="w-full border text-backgr border-gray-300 rounded px-3 py-2 text-sm pr-10"
+                            className="w-full border border-purple-500 text-backgr rounded px-3 py-2 text-sm pr-10 focus:ring-purple-500 focus:border-purple-500"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
@@ -144,6 +145,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
             </div>
         </div>
     );
+    
 };
 
 export default EditProfileModal;
