@@ -15,28 +15,38 @@ interface AddCommentPayload {
     gameId: number; 
 }
 
+interface PaginatedCommentsResponse {
+    comments: Comment[];
+    totalComments: number;
+    totalPages: number;
+    currentPage: number;
+}
+
 export const commentApi = createApi({
-    reducerPath: 'commentApi',  
+    reducerPath: 'commentApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: import.meta.env.VITE_APP_API_URL, 
-        prepareHeaders: (headers, { getState }) => {
+        baseUrl: import.meta.env.VITE_APP_API_URL,
+        prepareHeaders: (headers) => {
             const token = localStorage.getItem('token');
             if (token) {
                 headers.set('Authorization', `Bearer ${token}`);
             }
-            return headers;  
+            return headers;
         },
     }),
     endpoints: (builder) => ({
-        getComments: builder.query<Comment[], number>({
-            query: (gameId) => `api/comment/${gameId}`,  
+        getComments: builder.query<PaginatedCommentsResponse, { gameId: number; page?: number; limit?: number }>({
+            query: ({ gameId, page = 1, limit = 10 }) => ({
+                url: `api/comment/${gameId}`,
+                params: { page, limit },
+            }),
         }),
         addComment: builder.mutation<Comment, AddCommentPayload>({
             query: (payload) => ({
-                url: `api/comment/${payload.gameId}`,  
-                method: 'POST',  
+                url: `api/comment/${payload.gameId}`,
+                method: 'POST',
                 body: {
-                    text: payload.text,  
+                    text: payload.text,
                 },
             }),
         }),

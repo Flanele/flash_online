@@ -47,29 +47,39 @@ const GameList: React.FC<GameListProps> = ({ games, isLoading, error, menuOpen =
         );        
     }
 
+    const sortedGames = [...games].sort((a, b) => b.popularity_score - a.popularity_score);
+
     return (
         <div className={`transition-all duration-200 ease-in-out transform ${menuOpen ? 'ml-[16.67%]' : 'ml-0'}`}>
             <div className="md:container mx-auto mt-20">
                 <ul className="flex justify-center flex-wrap gap-[60px]">
-                    {games.map((game) => (
-                        <li key={game.id} className="relative">
+                    {sortedGames.map((game) => (
+                        <li key={game.id} className="relative group">
                             {!imageLoaded && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-gray-300 w-[300px] h-[200px] rounded-xl">
                                     <div className="w-8 h-8 border-t-4 border-header border-solid rounded-full animate-spin"></div>
                                 </div>
                             )}
 
-                            <Link to={`/game/${game.id}`}>
+                            <Link to={`/game/${game.id}`} className="relative block w-[300px] h-[200px]">
                                 <img
                                     src={`${apiUrl}/${game.preview_url}`}
                                     alt={game.title}
-                                    className="w-[300px] h-[200px] rounded-xl"
+                                    className="w-full h-full rounded-xl"
                                     onLoad={handleImageLoad}
                                 />
+                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white text-center text-[20px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl">
+                                    {game.popularity_score} {game.popularity_score === 1 ? 'user' : 'users'} added to favorites
+                                </div>
+                                
+                            </Link>
+
+                            <Link to={`/game/${game.id}`}>
                                 <h2 className="mt-3 text-center text-[20px] break-words max-w-[300px] hover:text-header">
                                     {game.title}
                                 </h2>
                             </Link>
+                            
                         </li>
                     ))}
                 </ul>
@@ -79,4 +89,5 @@ const GameList: React.FC<GameListProps> = ({ games, isLoading, error, menuOpen =
 };
 
 export default GameList;
+
 

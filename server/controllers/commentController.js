@@ -34,22 +34,34 @@ class CommentController {
     async getAllComments(req, res, next) {
         try {
             const { id: gameId } = req.params;
+            let { page, limit } = req.query;
+            page = parseInt(page) || 1;
+            limit = parseInt(limit) || 10;
+            const offset = (page - 1) * limit;
     
-            const comments = await Comment.findAll({
+            const comments = await Comment.findAndCountAll({
                 where: { gameId },
                 include: [
                     {
                         model: User,
                         attributes: ['username', 'avatar_url']  
                     }
-                ]
+                ],
+                limit,
+                offset,
+                order: [['createdAt', 'DESC']],
             });
     
-            if (!comments.length) {
+            if (!comments.rows.length) {
                 return res.status(404).json({ message: 'Комментариев не найдено' });
             }
     
-            return res.status(200).json(comments);
+            return res.status(200).json({
+                comments: comments.rows,
+                totalComments: comments.count,
+                totalPages: Math.ceil(comments.count / limit),
+                currentPage: page
+            });
     
         } catch (error) {
             console.error(error);
