@@ -5,6 +5,8 @@ const ApiError = require('../error/ApiError');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path'); 
 const fs = require('fs');
+const { userSockets } = require('../consts/socket');
+const notificationController = require('./notificationController');
 
 
 const generateJwt = (id, email, role) => {
@@ -13,6 +15,7 @@ const generateJwt = (id, email, role) => {
         {expiresIn: '24h'}
     );
 };
+
 
 class UserController {
     async registration(req, res, next) {
@@ -30,6 +33,24 @@ class UserController {
             const hashPassword = await bcrypt.hash(password, 5);
             const user = await User.create({ email, role, password: hashPassword, username, avatar_url: null });
             const token = generateJwt(user.id, user.email, user.role);
+
+            const content = `Welcome to the FancyGames, ${user.username}!`;
+            const type = 'welcome'; 
+            
+            const trySendNotification = async (userId, attempt = 1) => {
+                const socketId = userSockets[userId];
+                if (socketId) {
+                    await notificationController.createNotification(userId, content, type);
+                } else if (attempt <= 5) { 
+                    console.log(`Сокет для пользователя ${userId} не зарегистрирован, попытка ${attempt}`);
+                    setTimeout(() => trySendNotification(userId, attempt + 1), 1000); 
+                } else {
+                    console.log(`Не удалось отправить уведомление, сокет не найден для пользователя ${userId}`);
+                }
+            };
+    
+            await trySendNotification(user.id);
+
             return res.status(201).json({ 
                 token,
                 id: user.id,

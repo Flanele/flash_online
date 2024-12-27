@@ -40,11 +40,44 @@ const Comment = sequelize.define('comment', {
     text: { type: DataTypes.TEXT, allowNull: false }
 });
 
-User.hasMany(FavoriteGame); 
-FavoriteGame.belongsTo(User); 
+const Friend = sequelize.define('friend', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    status: { type: DataTypes.STRING, defaultValue: 'pending' }
+});
 
-Game.hasMany(FavoriteGame); 
-FavoriteGame.belongsTo(Game); 
+const Message = sequelize.define('message', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    text: { type: DataTypes.TEXT, allowNull: false },
+    read: { type: DataTypes.BOOLEAN, defaultValue: false },
+    senderId: { 
+        type: DataTypes.INTEGER, 
+        allowNull: false, 
+        references: { model: 'users', key: 'id' }
+    },
+    receiverId: { 
+        type: DataTypes.INTEGER, 
+        allowNull: false, 
+        references: { model: 'users', key: 'id' }
+    }
+});
+
+const Notification = sequelize.define('notification', {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    content: { type: DataTypes.STRING, allowNull: false },
+    type: { type: DataTypes.STRING, allowNull: false },
+    seen: { type: DataTypes.BOOLEAN, defaultValue: false },
+    userId: { 
+        type: DataTypes.INTEGER, 
+        allowNull: false, 
+        references: { model: 'users', key: 'id' }
+    }
+});
+
+User.hasMany(FavoriteGame);
+FavoriteGame.belongsTo(User);
+
+Game.hasMany(FavoriteGame);
+FavoriteGame.belongsTo(Game);
 
 Game.belongsToMany(Genre, { through: 'game_genre', foreignKey: 'gameId' });
 Genre.belongsToMany(Game, { through: 'game_genre', foreignKey: 'genreId' });
@@ -55,6 +88,32 @@ Comment.belongsTo(User);
 Game.hasMany(Comment);
 Comment.belongsTo(Game);
 
+User.hasMany(Friend, { foreignKey: 'userId' });
+User.hasMany(Friend, { foreignKey: 'friendId' });
+
+User.belongsToMany(User, { 
+    through: 'friend', 
+    foreignKey: 'userId', 
+    otherKey: 'friendId', 
+    as: 'Friends' // Друзья пользователя
+});
+
+User.belongsToMany(User, { 
+    through: 'friend', 
+    foreignKey: 'friendId', 
+    otherKey: 'userId', 
+    as: 'FriendOf' // Те, кто является другом пользователя
+});
+
+User.hasMany(Message, { foreignKey: 'senderId' });
+Message.belongsTo(User, { foreignKey: 'senderId' });
+
+User.hasMany(Message, { foreignKey: 'receiverId' });
+Message.belongsTo(User, { foreignKey: 'receiverId' });
+
+User.hasMany(Notification);
+Notification.belongsTo(User, { foreignKey: 'userId' });
+
 module.exports = {
-    User, Game, Genre, FavoriteGame, Comment
+    User, Game, Genre, FavoriteGame, Comment, Friend, Message, Notification
 };

@@ -1,16 +1,27 @@
 import messages from '../assets/messages.svg';
-import notifications from '../assets/notifications.svg';
+import notificationsImg from '../assets/notifications.svg';
 import friends from '../assets/friends.svg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import EditProfileModal from './EditProfileModal';
+import NotificationsModal from './NotificationsModal';
+import { useNotifications } from '../hooks/useNotifications';
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
 const ProfileBar: React.FC = () => {
     const user = useSelector((state: RootState) => state.auth.user);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
+
+    const { notifications, unreadCount, isLoading, markAllAsSeen } = useNotifications();
+
+    const handleNotificationsClose = async () => {
+        await markAllAsSeen();
+        setIsNotificationsModalOpen(false);
+    };
+
 
     const getUserInitials = (username: string) => {
         const nameParts = username.split(' ');
@@ -24,14 +35,19 @@ const ProfileBar: React.FC = () => {
             <button>
                 <img src={messages} alt="messages" />
             </button>
-            <button>
-                <img src={notifications} alt="notifications" />
+            <button onClick={() => setIsNotificationsModalOpen(true)} className="relative">
+                <img src={notificationsImg} alt="notifications" />
+                {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {unreadCount}
+                    </span>
+                )}
             </button>
             <button>
                 <img src={friends} alt="friends" />
             </button>
 
-            <div className={`relative flex items-center gap-2 cursor-pointer ${!isModalOpen && 'group'}`} onClick={() => setIsModalOpen(true)}>
+            <div className={`relative flex items-center gap-2 cursor-pointer ${!isProfileModalOpen && 'group'}`} onClick={() => setIsProfileModalOpen(true)}>
                 <div className="w-10 h-10 rounded-full bg-nav flex items-center justify-center overflow-hidden">
                     {user?.avatar_url ? (
                         <img
@@ -51,7 +67,14 @@ const ProfileBar: React.FC = () => {
                     Click to edit profile
                 </div>    
             </div>
-            {isModalOpen && <EditProfileModal onClose={() => setIsModalOpen(false)} />}
+            {isProfileModalOpen && <EditProfileModal onClose={() => setIsProfileModalOpen(false)} />}
+            {isNotificationsModalOpen && (
+                <NotificationsModal
+                    onClose={handleNotificationsClose}
+                    notifications={notifications || []}
+                    isLoading={isLoading}
+                />
+            )}
         </>
     );
 };

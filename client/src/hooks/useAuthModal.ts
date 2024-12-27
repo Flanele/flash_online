@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation, useRegisterMutation } from '../store/services/authApi';
 import { setAuth } from '../store/slices/authSlice';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:9000'); 
 
 const useAuthModal = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -52,10 +55,11 @@ const useAuthModal = () => {
                 const response = await login({ email, password }).unwrap();
                 dispatch(setAuth({ token: response.token, user: { id: response.id, email, role: 'user', username: response.username, avatar_url: response.avatar_url || null } }));
                 localStorage.setItem('token', response.token);
-            } else {
+            } else {               
                 const response = await register({ email, password, username }).unwrap();
+                socket.emit('register_user', response.id);
                 dispatch(setAuth({ token: response.token, user: { id: response.id, email, role: 'user', username, avatar_url: null } }));
-                localStorage.setItem('token', response.token);
+                localStorage.setItem('token', response.token);              
             }
             onClose(); 
         } catch (error: any) {

@@ -6,6 +6,9 @@ import { logout, setAuth } from './store/slices/authSlice';
 import { useCheckAuthQuery } from './store/services/authApi';
 import { useFetchFavoritesQuery } from './store/services/favoriteApi';
 import { setFavoriteGames } from './store/slices/favoritesSlice';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:9000'); 
 
 
 const App: React.FC = () => {
@@ -43,6 +46,24 @@ const App: React.FC = () => {
       dispatch(setFavoriteGames(favoriteIds)); 
     }
   }, [favoritesData, dispatch]);
+
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('WebSocket connected:', socket.id);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('WebSocket disconnected');
+    });
+
+    socket.on('receive_message', (message) => {
+      console.log('Message received:', message);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   if (authLoading || favoritesLoading) return <div>Loading...</div>;
 
