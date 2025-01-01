@@ -1,19 +1,21 @@
 import { useEffect } from 'react';
-import { io } from 'socket.io-client';
 import { useDispatch } from 'react-redux';
-import { ApiNotification, notificationApi } from '../store/services/notificationApi';
+import { notificationApi } from '../store/services/notificationApi';
 import { AppDispatch } from '../store/store';
-
-const socket = io(import.meta.env.VITE_APP_SOCKET_URL); 
+import socket from '../socket/socket';
 
 const useNotificationSocket = () => {
     const dispatch = useDispatch<AppDispatch>();
+    console.log('Клиентский сокет ID:', socket.id);
 
     useEffect(() => {
-
         console.log('Подключение к сокету...');
         socket.on('connect', () => {
             console.log('Сокет подключен:', socket.id);  
+        });
+
+        socket.on('reconnect', () => {
+            console.log('Переподключение, новый сокет ID:', socket.id);
         });
 
         socket.on('new_notification', (newNotification) => {

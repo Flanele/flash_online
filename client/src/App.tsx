@@ -6,9 +6,7 @@ import { logout, setAuth } from './store/slices/authSlice';
 import { useCheckAuthQuery } from './store/services/authApi';
 import { useFetchFavoritesQuery } from './store/services/favoriteApi';
 import { setFavoriteGames } from './store/slices/favoritesSlice';
-import { io } from 'socket.io-client';
-
-const socket = io(import.meta.env.VITE_APP_SOCKET_URL); 
+import socket from './socket/socket';
 
 
 const App: React.FC = () => {

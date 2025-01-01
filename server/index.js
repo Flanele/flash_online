@@ -8,7 +8,6 @@ const router = require('./routes/index');
 const fileUpload = require('express-fileupload');
 const path = require('path');
 const { userSockets } = require('./consts/socket');
-const notificationController = require('./controllers/notificationController');
 const NotificationService = require('./services/NotificationService');
 const { Notification } = require('./models/models');
 

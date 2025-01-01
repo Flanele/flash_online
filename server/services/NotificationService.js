@@ -51,10 +51,14 @@ class NotificationService {
             return;
         }
 
+        console.log(`Сокет ID для пользователя ${friendId}: ${socketId}`);
+
         const notifications = await Notification.findAll({
             where: { userId: friendId, seen: false },
             order: [["createdAt", "ASC"]],
         });
+
+        console.log(`Найдено ${notifications.length} уведомлений для пользователя ${friendId}`);
 
         notifications.forEach((notif) => {
             if (!this.sentNotifications.has(notif.id)) {

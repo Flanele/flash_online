@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation, useRegisterMutation } from '../store/services/authApi';
 import { setAuth } from '../store/slices/authSlice';
-import { io } from 'socket.io-client';
-
-const socket = io('http://localhost:9000'); 
+import socket from '../socket/socket';
 
 const useAuthModal = () => {
     const [isLogin, setIsLogin] = useState(true);
