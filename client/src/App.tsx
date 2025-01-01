@@ -8,7 +8,7 @@ import { useFetchFavoritesQuery } from './store/services/favoriteApi';
 import { setFavoriteGames } from './store/slices/favoritesSlice';
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:9000'); 
+const socket = io(import.meta.env.VITE_APP_SOCKET_URL); 
 
 
 const App: React.FC = () => {
@@ -32,6 +32,7 @@ const App: React.FC = () => {
             },
           })
         );
+        socket.emit('login', authData.id);
       } else if (authError) {
         dispatch(logout());
       }

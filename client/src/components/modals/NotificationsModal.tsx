@@ -1,4 +1,4 @@
-import { ApiNotification } from "../store/services/notificationApi";
+import { ApiNotification } from "../../store/services/notificationApi";
 
 interface NotificationsModalProps {
     onClose: () => void;
@@ -31,7 +31,7 @@ const NotificationsModal : React.FC<NotificationsModalProps> = ({ onClose, notif
                             {notifications.map((notification, index) => (
                                 <li
                                 key={index}
-                                className={`p-4 rounded-md shadow-md ${
+                                className={`p-4 rounded-md shadow-md mb-3 ${
                                     notification.seen
                                         ? 'bg-light'
                                         : 'bg-lighter text-nav'

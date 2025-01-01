@@ -53,11 +53,12 @@ const useAuthModal = () => {
         try {
             if (isLogin) {
                 const response = await login({ email, password }).unwrap();
+                socket.emit('login', response.id);
                 dispatch(setAuth({ token: response.token, user: { id: response.id, email, role: 'user', username: response.username, avatar_url: response.avatar_url || null } }));
                 localStorage.setItem('token', response.token);
             } else {               
                 const response = await register({ email, password, username }).unwrap();
-                socket.emit('register_user', response.id);
+                socket.emit('login', response.id);
                 dispatch(setAuth({ token: response.token, user: { id: response.id, email, role: 'user', username, avatar_url: null } }));
                 localStorage.setItem('token', response.token);              
             }

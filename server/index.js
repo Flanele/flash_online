@@ -9,6 +9,8 @@ const fileUpload = require('express-fileupload');
 const path = require('path');
 const { userSockets } = require('./consts/socket');
 const notificationController = require('./controllers/notificationController');
+const NotificationService = require('./services/NotificationService');
+const { Notification } = require('./models/models');
 
 const app = express();
 
@@ -16,7 +18,8 @@ const allowOrigin = "http://localhost:5173";
 app.use(cors({
     origin: allowOrigin, 
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'] 
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true, 
 }));
 
 app.use(express.json());
@@ -27,25 +30,19 @@ app.use(fileUpload({
 app.use(express.urlencoded({ extended: true }));
 app.use('/api', router);
 
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*"); 
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    next();
-});
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
         origin: allowOrigin, 
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'PATCH'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true, 
     },
 });
 
-notificationController.setSocket(io);
+const notificationService = new NotificationService(io, userSockets);
 
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
@@ -55,9 +52,19 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('receive_message', data);
     });
 
-    socket.on('register_user', (userId) => {
+    socket.on('login', (userId) => {
         userSockets[userId] = socket.id; 
         console.log(`Socket для userId ${userId} зарегистрирован с ID ${socket.id}`);
+        console.log('Зарегистрированные сокеты:', userSockets );
+
+        notificationService.sendNotification(userId)
+    });
+
+    socket.on('new_friend', (data) => {
+        console.log(`New friend request sent to user with ID: ${data.friendId}`);
+        const { friendId } = data;
+
+        notificationService.sendFriendRequestNotification(friendId);
     });
 
     socket.on('disconnect', () => {

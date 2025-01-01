@@ -10,6 +10,8 @@ import { favoriteApi } from './services/favoriteApi';
 import { commentApi } from './services/commentApi';
 import favoritesSliceReducer from './slices/favoritesSlice';
 import { notificationApi } from './services/notificationApi';
+import { userApi } from './services/userApi';
+import { friendApi } from './services/friendApi';
 
 export const store = configureStore({
     reducer: {
@@ -19,6 +21,8 @@ export const store = configureStore({
         [favoriteApi.reducerPath]: favoriteApi.reducer,
         [commentApi.reducerPath]: commentApi.reducer,
         [notificationApi.reducerPath]: notificationApi.reducer,
+        [userApi.reducerPath]: userApi.reducer,
+        [friendApi.reducerPath]: friendApi.reducer,
         filterGenre: filterGenreReducer,
         filterTerm: filterTermReducer,
         menu: menuReducer,
@@ -26,7 +30,7 @@ export const store = configureStore({
         favorites: favoritesSliceReducer
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(api.middleware, genreApi.middleware, authApi.middleware, favoriteApi.middleware, commentApi.middleware, notificationApi.middleware),  
+        getDefaultMiddleware().concat(api.middleware, genreApi.middleware, authApi.middleware, favoriteApi.middleware, commentApi.middleware, notificationApi.middleware, userApi.middleware, friendApi.middleware),  
 });
 
 export type RootState = ReturnType<typeof store.getState>;

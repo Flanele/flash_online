@@ -6,7 +6,7 @@ import NavbarTabsList from "./NavbarTabsList";
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleMenu } from '../store/slices/menuSlice';
 import { useState } from 'react';
-import AuthModal from './AuthModal';
+import AuthModal from './modals/AuthModal';
 import { RootState } from '../store/store';
 import { logout } from '../store/slices/authSlice';
 import ProfileBar from './ProfileBar';

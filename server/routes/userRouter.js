@@ -10,4 +10,6 @@ router.get('/auth', authMiddleware, userController.check);
 
 router.patch('/', authMiddleware, userController.editUser);
 
+router.get('/', authMiddleware, userController.getAllUsers);
+
 module.exports = router; 

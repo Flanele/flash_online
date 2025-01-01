@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
-import useEditProfileModal from "../hooks/useEditProfileModal";
-import { RootState } from "../store/store";
+import useEditProfileModal from "../../hooks/useEditProfileModal";
+import { RootState } from "../../store/store";
+
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -17,7 +18,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) => {
         handleAvatarChange,
         handleSave,
         getUserInitials,
-    } = useEditProfileModal(onClose);  // Передаем onClose в хук
+    } = useEditProfileModal(onClose);  
 
     const user = useSelector((state: RootState) => state.auth.user);
 

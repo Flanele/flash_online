@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useFetchNotificationsQuery, useMarkAsSeenMutation } from "../store/services/notificationApi";
 import { ApiNotification } from "../store/services/notificationApi";
 
-export const useNotifications = () => {
+ const useNotifications = () => {
     const [unreadCount, setUnreadCount] = useState(0);
     const { data: notifications, isLoading, error } = useFetchNotificationsQuery();
     const [markAsSeen] = useMarkAsSeenMutation();
@@ -32,3 +32,5 @@ export const useNotifications = () => {
         markAllAsSeen,
     };
 };
+
+export default useNotifications;

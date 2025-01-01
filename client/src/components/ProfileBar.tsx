@@ -3,10 +3,12 @@ import notificationsImg from '../assets/notifications.svg';
 import friends from '../assets/friends.svg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { useState } from 'react';
-import EditProfileModal from './EditProfileModal';
-import NotificationsModal from './NotificationsModal';
-import { useNotifications } from '../hooks/useNotifications';
+import { useEffect, useState } from 'react';
+import EditProfileModal from './modals/EditProfileModal';
+import NotificationsModal from './modals/NotificationsModal';
+import useNotifications from '../hooks/useNotifications';
+import useNotificationSocket from '../hooks/useNotificationSocket';
+import FriendsModal from './modals/FriendsModal';
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -16,6 +18,8 @@ const ProfileBar: React.FC = () => {
     const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
 
     const { notifications, unreadCount, isLoading, markAllAsSeen } = useNotifications();
+
+    const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
 
     const handleNotificationsClose = async () => {
         await markAllAsSeen();
@@ -29,6 +33,12 @@ const ProfileBar: React.FC = () => {
             ? `${nameParts[0][0]}${nameParts[1][0]}`
             : nameParts[0][0];
     };
+
+    useNotificationSocket();
+
+    useEffect(() => {
+        console.log('Обновленные уведомления:', notifications);
+    }, [notifications]);
     
     return (
         <>
@@ -43,7 +53,9 @@ const ProfileBar: React.FC = () => {
                     </span>
                 )}
             </button>
-            <button>
+            <button
+                onClick={() => setIsFriendsModalOpen(true)}
+            >
                 <img src={friends} alt="friends" />
             </button>
 
@@ -75,6 +87,7 @@ const ProfileBar: React.FC = () => {
                     isLoading={isLoading}
                 />
             )}
+            {isFriendsModalOpen && <FriendsModal onClose={() => setIsFriendsModalOpen(false)} />}
         </>
     );
 };

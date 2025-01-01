@@ -1,46 +1,14 @@
-const { userSockets } = require("../consts/socket");
 const ApiError = require("../error/ApiError");
 const { User, Notification } = require("../models/models");
 
-class NotoficationController {
-    setSocket(ioInstance) {
-        this.io = ioInstance;
-    };
+class NotificationController {
 
-    async createNotification(receiverId, content, type) {
-        try {
-            const receiver = await User.findByPk(receiverId);
-            if (!receiver) {
-                throw new Error('Пользователь не найден');
-            }
-
-            const notification = await Notification.create({
-                content: content,
-                type: type,
-                seen: false, 
-                userId: receiverId,
-            });
-
-            const socketId = userSockets[receiverId]; 
-            if (socketId) {
-                this.io.to(socketId).emit('new_notification', {
-                    content: content,
-                    notificationId: notification.id
-                });
-                console.log('Уведомление отправлено через сокет');
-            } else {
-                console.log(`Пользователь с ID ${receiverId} не подключен`);
-            }
-        } catch (error) {
-            console.log('Ошибка при создании уведомления:', error);
-        }
-    }
 
     async getAllNotifications(req, res, next) {
         try {
             const userId = req.user.id;
 
-            const notifications = await Notification.findAll({where: {userId}});
+            const notifications = await Notification.findAll({where: {userId}, order: [['createdAt', 'DESC']]});
 
             return res.status(200).json(notifications);
 
@@ -74,4 +42,4 @@ class NotoficationController {
     }
 };
 
-module.exports = new NotoficationController();
+module.exports = new NotificationController();

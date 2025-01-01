@@ -1,16 +1,15 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/models');
+const { User, Notification } = require('../models/models');
 const ApiError = require('../error/ApiError');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path'); 
 const fs = require('fs');
-const { userSockets } = require('../consts/socket');
-const notificationController = require('./notificationController');
+const { Op } = require('sequelize'); 
 
 
-const generateJwt = (id, email, role) => {
-    return jwt.sign({id, email, role}, 
+const generateJwt = (id, email, role, username) => {
+    return jwt.sign({id, email, role, username}, 
         process.env.SECRET_KEY,
         {expiresIn: '24h'}
     );
@@ -32,24 +31,17 @@ class UserController {
 
             const hashPassword = await bcrypt.hash(password, 5);
             const user = await User.create({ email, role, password: hashPassword, username, avatar_url: null });
-            const token = generateJwt(user.id, user.email, user.role);
+            const token = generateJwt(user.id, user.email, user.role, user.username);
 
             const content = `Welcome to the FancyGames, ${user.username}!`;
             const type = 'welcome'; 
             
-            const trySendNotification = async (userId, attempt = 1) => {
-                const socketId = userSockets[userId];
-                if (socketId) {
-                    await notificationController.createNotification(userId, content, type);
-                } else if (attempt <= 5) { 
-                    console.log(`Сокет для пользователя ${userId} не зарегистрирован, попытка ${attempt}`);
-                    setTimeout(() => trySendNotification(userId, attempt + 1), 1000); 
-                } else {
-                    console.log(`Не удалось отправить уведомление, сокет не найден для пользователя ${userId}`);
-                }
-            };
-    
-            await trySendNotification(user.id);
+            await Notification.create({
+                userId: user.id,
+                content,
+                type,
+                seen: false,
+            });
 
             return res.status(201).json({ 
                 token,
@@ -79,7 +71,7 @@ class UserController {
                 return next(ApiError.internal('Неверный пароль пользователя'));
             }
 
-            const token = generateJwt(user.id, user.email, user.role);
+            const token = generateJwt(user.id, user.email, user.role, user.username);
             return res.status(200).json({
                 token,
                 id: user.id,
@@ -151,7 +143,7 @@ class UserController {
                 return next(ApiError.badRequest('Пользователь не найден'));
             }
     
-            const token = generateJwt(user.id, user.email, user.role);
+            const token = generateJwt(user.id, user.email, user.role, user.username);
     
             return res.status(200).json({
                 token,
@@ -166,6 +158,35 @@ class UserController {
             return next(ApiError.internal('Что-то пошло не так во время проверки аутентификации.'));
         }
     }
+
+    async getAllUsers(req, res, next) {
+        try {
+            const userId = req.user?.id;
+            const searchTerm = req.query.searchTerm || null;
+    
+            const whereCondition = {
+                id: {
+                    [Op.ne]: userId,
+                },
+            };
+    
+            if (searchTerm) {
+                whereCondition.username = {
+                    [Op.like]: `%${searchTerm}%`,
+                };
+            }
+    
+            const users = await User.findAll({
+                where: whereCondition,
+            });
+    
+            return res.status(200).json(users);
+        } catch (error) {
+            console.log(error);
+            return next(ApiError.internal('Не получилось получить список пользователей'));
+        }
+    }
+        
     
 };
 

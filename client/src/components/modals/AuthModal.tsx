@@ -1,4 +1,4 @@
-import useAuthModal from "../hooks/useAuthModal";
+import useAuthModal from "../../hooks/useAuthModal";
 
 
 interface AuthModalProps {
