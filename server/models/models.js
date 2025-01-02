@@ -70,6 +70,11 @@ const Notification = sequelize.define('notification', {
         type: DataTypes.INTEGER, 
         allowNull: false, 
         references: { model: 'users', key: 'id' }
+    },
+    from: { 
+        type: DataTypes.INTEGER, 
+        allowNull: true, 
+        defaultValue: null
     }
 });
 

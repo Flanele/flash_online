@@ -7,6 +7,7 @@ export interface ApiNotification {
     seen: boolean;
     userId: number;
     createdAt: string;
+    from: null | number;
 };
 
 export const notificationApi = createApi({

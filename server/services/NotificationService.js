@@ -33,6 +33,8 @@ class NotificationService {
                 type: notif.type,
                 seen: notif.seen,
                 userId: notif.userId,
+                from: notif.from,
+                createdAt: notif.createdAt
                 });
 
                 console.log(`Уведомление отправлено пользователю ${userId}:`, notif.content);
@@ -68,6 +70,8 @@ class NotificationService {
                     type: notif.type,
                     seen: notif.seen,
                     userId: notif.userId,
+                    from: notif.from,
+                    createdAt: notif.createdAt
                 });
 
                 console.log(`Уведомление о заявке в друзья отправлено пользователю ${friendId}:`, notif.content);

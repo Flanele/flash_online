@@ -53,6 +53,7 @@ class FriendController {
                 content,
                 type,
                 seen: false,
+                from: userId,
             });
 
             console.log(`Запрос в друзья отправлен от ${userId} к ${friendId}`);
@@ -65,6 +66,67 @@ class FriendController {
         }
     }
 
+    async acceptFriendRequest(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const username = req.user.username;
+            const { friendId } = req.params;
+    
+            const friendRequest = await Friend.findOne({ 
+                where: { userId: friendId, friendId: userId, status: 'pending' }
+            });
+    
+            if (!friendRequest) {
+                return next(ApiError.badRequest('Запрос от пользователя не найден'));
+            }
+    
+            friendRequest.status = 'accepted';
+            await friendRequest.save();
+    
+            await Friend.create({ userId, friendId, status: 'accepted' });
+    
+            const content = `User ${username} accepted your friend request. Now you are friends!`;
+            const type = 'friend request accepted';
+    
+            await Notification.create({
+                userId: friendId,
+                content,
+                type,
+                seen: false,
+                from: userId,
+            });
+    
+            return res.status(200).json(friendRequest);
+        } catch (error) {
+            console.log(error);
+            return next(ApiError.internal('Не получилось принять заявку в друзья'));
+        }
+    }
+
+    async declineFriendRequest(req, res, next) {
+        try {
+
+            const userId = req.user.id;
+            const { friendId } = req.params;
+
+            const friendRequest = await Friend.findOne({ 
+                where: { userId: friendId, friendId: userId, status: 'pending' }
+            });
+    
+            if (!friendRequest) {
+                return next(ApiError.badRequest('Запрос от пользователя не найден'));
+            }
+
+            await friendRequest.destroy();
+
+            return res.status(200).json('Заявка в друзья успешно отклонена');
+
+        } catch(error) {
+            console.log(error);
+            return next(ApiError.internal('Не получилось отклонить заявку в друзья'));
+        }
+    }
+    
 };
 
 module.exports = new FriendController();

@@ -4,16 +4,24 @@ interface Friend {
     id: number;
     userId: number;
     friendId: number;
-    status: string; 
-};
+    status: string;
+}
 
 interface AddFriendPayload {
     friendId: number;
-};
+}
 
 interface FriendsListResponse {
     friends: Friend[];
-};
+}
+
+interface AcceptFriendPayload {
+    friendId: number;
+}
+
+interface DeclineFriendPayload {
+    friendId: number;
+}
 
 export const friendApi = createApi({
     reducerPath: 'friendApi',
@@ -40,9 +48,29 @@ export const friendApi = createApi({
                 method: 'POST',
             }),
         }),
+
+        acceptFriendRequest: builder.mutation<Friend, AcceptFriendPayload>({
+            query: ({ friendId }) => ({
+                url: `api/friend/${friendId}`,
+                method: 'PATCH',
+            }),
+        }),
+
+        declineFriendRequest: builder.mutation<string, DeclineFriendPayload>({
+            query: ({ friendId }) => ({
+                url: `api/friend/${friendId}`,
+                method: 'DELETE',
+            }),
+        }),
     }),
 });
 
-export const { useGetFriendsListQuery, useAddFriendMutation } = friendApi;
+export const { 
+    useGetFriendsListQuery, 
+    useAddFriendMutation, 
+    useAcceptFriendRequestMutation, 
+    useDeclineFriendRequestMutation 
+} = friendApi;
+
 
 

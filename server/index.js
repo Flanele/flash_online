@@ -9,7 +9,6 @@ const fileUpload = require('express-fileupload');
 const path = require('path');
 const { userSockets } = require('./consts/socket');
 const NotificationService = require('./services/NotificationService');
-const { Notification } = require('./models/models');
 
 const app = express();
 

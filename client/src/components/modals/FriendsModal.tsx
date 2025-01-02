@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useFetchUsersQuery } from "../../store/services/userApi";
 import { useAddFriendMutation } from "../../store/services/friendApi";
-import { io } from "socket.io-client";
-
-const socket = io(import.meta.env.VITE_APP_SOCKET_URL); 
+import socket from '../../socket/socket';
 
 interface FriendsModalProps {
     onClose: () => void
