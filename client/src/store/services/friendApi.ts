@@ -56,7 +56,7 @@ export const friendApi = createApi({
             }),
         }),
 
-        declineFriendRequest: builder.mutation<string, DeclineFriendPayload>({
+        declineFriendRequestAndDeleteFriend: builder.mutation<string, DeclineFriendPayload>({
             query: ({ friendId }) => ({
                 url: `api/friend/${friendId}`,
                 method: 'DELETE',
@@ -69,7 +69,7 @@ export const {
     useGetFriendsListQuery, 
     useAddFriendMutation, 
     useAcceptFriendRequestMutation, 
-    useDeclineFriendRequestMutation 
+    useDeclineFriendRequestAndDeleteFriendMutation 
 } = friendApi;
 
 

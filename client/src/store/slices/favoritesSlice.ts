@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface FavoritesState {
   favoriteGames: number[];
-}
+};
 
 const initialState: FavoritesState = {
   favoriteGames: [],

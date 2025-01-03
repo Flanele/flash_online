@@ -12,6 +12,7 @@ import favoritesSliceReducer from './slices/favoritesSlice';
 import { notificationApi } from './services/notificationApi';
 import { userApi } from './services/userApi';
 import { friendApi } from './services/friendApi';
+import friendsSliceReducer from './slices/friendsSlice';
 
 export const store = configureStore({
     reducer: {
@@ -27,7 +28,8 @@ export const store = configureStore({
         filterTerm: filterTermReducer,
         menu: menuReducer,
         auth: authSliceReducer,
-        favorites: favoritesSliceReducer
+        favorites: favoritesSliceReducer,
+        friends: friendsSliceReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(api.middleware, genreApi.middleware, authApi.middleware, favoriteApi.middleware, commentApi.middleware, notificationApi.middleware, userApi.middleware, friendApi.middleware),  

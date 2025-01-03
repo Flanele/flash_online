@@ -22,7 +22,7 @@ class NotificationService {
 
         const notifications = await Notification.findAll({
             where: { userId, seen: false },
-            order: [["createdAt", "ASC"]],
+            order: [['createdAt', 'DESC']],
         });
 
         notifications.forEach((notif) => {
@@ -57,7 +57,7 @@ class NotificationService {
 
         const notifications = await Notification.findAll({
             where: { userId: friendId, seen: false },
-            order: [["createdAt", "ASC"]],
+            order: [['createdAt', 'DESC']],
         });
 
         console.log(`Найдено ${notifications.length} уведомлений для пользователя ${friendId}`);

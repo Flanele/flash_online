@@ -6,6 +6,6 @@ const router = require('express').Router();
 router.get('/', authMiddleware, friendController.getFriendsList);
 router.post('/:friendId', authMiddleware, friendController.addFriend);
 router.patch('/:friendId', authMiddleware, friendController.acceptFriendRequest);
-router.delete('/:friendId', authMiddleware, friendController.declineFriendRequest);
+router.delete('/:friendId', authMiddleware, friendController.removeFriendOrDeclineRequest);
 
 module.exports = router;

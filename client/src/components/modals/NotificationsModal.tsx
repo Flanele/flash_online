@@ -1,6 +1,10 @@
-import { useAcceptFriendRequestMutation, useDeclineFriendRequestMutation } from "../../store/services/friendApi";
+import { useAcceptFriendRequestMutation, useDeclineFriendRequestAndDeleteFriendMutation } from "../../store/services/friendApi";
 import { ApiNotification } from "../../store/services/notificationApi";
 import socket from '../../socket/socket';
+import { useDispatch } from "react-redux";
+import { addFriendToAccepted } from "../../store/slices/friendsSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 interface NotificationsModalProps {
     onClose: () => void;
@@ -10,7 +14,9 @@ interface NotificationsModalProps {
 
 const NotificationsModal : React.FC<NotificationsModalProps> = ({ onClose, notifications, isLoading }) => {
     const [acceptFriendRequest] = useAcceptFriendRequestMutation();
-    const [declineFriendRequest] = useDeclineFriendRequestMutation();
+    const [declineFriendRequest] = useDeclineFriendRequestAndDeleteFriendMutation();
+    const dispath = useDispatch();
+    const { accepted } = useSelector((state: RootState) => state.friends);
 
     const handleAccept = async (friendId: number | null) => {
         if (friendId === null) {
@@ -19,6 +25,7 @@ const NotificationsModal : React.FC<NotificationsModalProps> = ({ onClose, notif
         }
         try {
             await acceptFriendRequest({ friendId }).unwrap();
+            dispath(addFriendToAccepted(friendId));
             socket.emit('new_friend', { friendId });
         } catch (error) {
             console.error("Error accepting friend request:", error);
@@ -70,22 +77,25 @@ const NotificationsModal : React.FC<NotificationsModalProps> = ({ onClose, notif
                                     <p className="text-sm text-nav mt-3">
                                         {new Date(notification.createdAt).toLocaleString()}
                                     </p>
-                                    {notification.type === "friend request" && (
-                                        <div className="flex justify-end space-x-4 mt-3">
-                                            <button
-                                                onClick={() => handleAccept(notification.from)}
-                                                className="px-3 py-1 bg-header text-white rounded-md hover:bg-purple-600 text-md"
-                                            >
-                                                Accept
-                                            </button>
-                                            <button
-                                                onClick={() => handleDecline(notification.from)}
-                                                className="px-3 py-1 bg-text text-nav rounded-md hover:bg-gray-300 text-md"
-                                            >
-                                                Decline
-                                            </button>
-                                        </div>
-                                    )}
+                                    {notification.type === "friend request" 
+                                        && notification.from !== null 
+                                        && !accepted.includes(notification.from) 
+                                        && (
+                                            <div className="flex justify-end space-x-4 mt-3">
+                                                <button
+                                                    onClick={() => handleAccept(notification.from)}
+                                                    className="px-3 py-1 bg-header text-white rounded-md hover:bg-purple-600 text-md"
+                                                >
+                                                    Accept
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDecline(notification.from)}
+                                                    className="px-3 py-1 bg-text text-nav rounded-md hover:bg-gray-300 text-md"
+                                                >
+                                                    Decline
+                                                </button>
+                                            </div>
+                                        )}
                                 </li>
                             ))}
                         </ul>

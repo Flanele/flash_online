@@ -7,12 +7,15 @@ import { useCheckAuthQuery } from './store/services/authApi';
 import { useFetchFavoritesQuery } from './store/services/favoriteApi';
 import { setFavoriteGames } from './store/slices/favoritesSlice';
 import socket from './socket/socket';
+import { useGetFriendsListQuery } from './store/services/friendApi';
+import { setFriends } from './store/slices/friendsSlice';
 
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
   const { data: authData, error: authError, isLoading: authLoading } = useCheckAuthQuery();
   const { data: favoritesData, isLoading: favoritesLoading } = useFetchFavoritesQuery(undefined, { skip: !authData });
+  const { data: friendsData, isLoading: friendsLoading } = useGetFriendsListQuery(undefined, { skip: !authData });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -47,6 +50,21 @@ const App: React.FC = () => {
   }, [favoritesData, dispatch]);
 
   useEffect(() => {
+    if (friendsData?.friends) {
+        const accepted = friendsData.friends
+            .filter(friend => friend.status === 'accepted')
+            .map(friend => friend.friendId);
+
+        const pending = friendsData.friends
+            .filter(friend => friend.status === 'pending')
+            .map(friend => friend.friendId);
+
+        dispatch(setFriends({ accepted, pending }));
+    }
+  }, [friendsData, dispatch]);
+
+
+  useEffect(() => {
     socket.on('connect', () => {
       console.log('WebSocket connected:', socket.id);
     });
@@ -64,7 +82,7 @@ const App: React.FC = () => {
     };
   }, []);
 
-  if (authLoading || favoritesLoading) return <div>Loading...</div>;
+  if (authLoading || favoritesLoading || friendsLoading) return <div>Loading...</div>;
 
   return (
 

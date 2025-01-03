@@ -1,6 +1,6 @@
-const { userSockets } = require("../consts/socket");
 const ApiError = require("../error/ApiError");
 const { Friend, User, Notification } = require("../models/models");
+const { Op } = require('sequelize');
 
 class FriendController {
 
@@ -10,7 +10,9 @@ class FriendController {
 
             const friends = await Friend.findAll({ where: { userId: userId } });
 
-            return res.status(200).json(friends || []);
+            return res.status(200).json({
+                friends: friends.map((friend) => friend.dataValues)
+            });
 
         } catch (error) {
             console.log(error);
@@ -103,29 +105,51 @@ class FriendController {
         }
     }
 
-    async declineFriendRequest(req, res, next) {
+    async removeFriendOrDeclineRequest(req, res, next) {
         try {
-
             const userId = req.user.id;
             const { friendId } = req.params;
-
+    
             const friendRequest = await Friend.findOne({ 
-                where: { userId: friendId, friendId: userId, status: 'pending' }
+                where: { 
+                    [Op.or]: [
+                        { userId: userId, friendId: friendId }, 
+                        { userId: friendId, friendId: userId }
+                    ] 
+                }
             });
     
             if (!friendRequest) {
-                return next(ApiError.badRequest('Запрос от пользователя не найден'));
+                return next(ApiError.badRequest('Запрос или дружба не найдены'));
             }
-
-            await friendRequest.destroy();
-
-            return res.status(200).json('Заявка в друзья успешно отклонена');
-
-        } catch(error) {
+    
+            if (friendRequest.status === 'pending') {
+                await friendRequest.destroy();
+                return res.status(200).json('Заявка в друзья успешно отклонена');
+            }
+    
+            if (friendRequest.status === 'accepted') {
+                await friendRequest.destroy();
+    
+                const reverseFriendRequest = await Friend.findOne({
+                    where: { userId: friendId, friendId: userId }
+                });
+    
+                if (reverseFriendRequest) {
+                    await reverseFriendRequest.destroy();
+                }
+    
+                return res.status(200).json('Пользователь удален из списка друзей');
+            }
+    
+            return next(ApiError.badRequest('Некорректный статус запроса'));
+    
+        } catch (error) {
             console.log(error);
-            return next(ApiError.internal('Не получилось отклонить заявку в друзья'));
+            return next(ApiError.internal('Не удалось обработать запрос'));
         }
     }
+    
     
 };
 
