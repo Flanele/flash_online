@@ -1,8 +1,5 @@
-import { useAcceptFriendRequestMutation, useDeclineFriendRequestAndDeleteFriendMutation } from "../../store/services/friendApi";
 import { ApiNotification } from "../../store/services/notificationApi";
-import socket from '../../socket/socket';
-import { useDispatch } from "react-redux";
-import { addFriendToAccepted } from "../../store/slices/friendsSlice";
+import { useNotificationsModal } from "../../hooks/useNotificationsModal";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 
@@ -13,36 +10,8 @@ interface NotificationsModalProps {
 }
 
 const NotificationsModal : React.FC<NotificationsModalProps> = ({ onClose, notifications, isLoading }) => {
-    const [acceptFriendRequest] = useAcceptFriendRequestMutation();
-    const [declineFriendRequest] = useDeclineFriendRequestAndDeleteFriendMutation();
-    const dispath = useDispatch();
+    const { currentNotifications, handleAccept, handleDecline, handleDeleteNotification } = useNotificationsModal(notifications);
     const { accepted } = useSelector((state: RootState) => state.friends);
-
-    const handleAccept = async (friendId: number | null) => {
-        if (friendId === null) {
-            console.error("Friend ID is null. Cannot accept request.");
-            return;
-        }
-        try {
-            await acceptFriendRequest({ friendId }).unwrap();
-            dispath(addFriendToAccepted(friendId));
-            socket.emit('new_friend', { friendId });
-        } catch (error) {
-            console.error("Error accepting friend request:", error);
-        }
-    };
-
-    const handleDecline = async (friendId: number | null) => {
-        if (friendId === null) {
-            console.error("Friend ID is null. Cannot decline request.");
-            return;
-        }
-        try {
-            await declineFriendRequest({ friendId }).unwrap();
-        } catch (error) {
-            console.error("Error declining friend request:", error);
-        }
-    };
    
     if (isLoading) {
         return (
@@ -61,10 +30,10 @@ const NotificationsModal : React.FC<NotificationsModalProps> = ({ onClose, notif
                     ✕
                 </button>
                 <h2 className="text-2xl font-bold text-center mb-5">Notifications</h2>
-                {notifications && notifications.length > 0 ? (
+                {currentNotifications && currentNotifications.length > 0 ? (
                     <div className="flex-1 overflow-y-auto space-y-4 pr-2">
                         <ul>
-                            {notifications.map((notification, index) => (
+                            {currentNotifications.map((notification, index) => (
                                 <li
                                     key={index}
                                     className={`p-4 rounded-md shadow-md mb-3 ${
@@ -73,10 +42,20 @@ const NotificationsModal : React.FC<NotificationsModalProps> = ({ onClose, notif
                                             : 'bg-lighter text-nav'
                                     }`}
                                 >
-                                    <p className="text-md font-medium">{notification.content}</p>
-                                    <p className="text-sm text-nav mt-3">
-                                        {new Date(notification.createdAt).toLocaleString()}
-                                    </p>
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <p className="text-md font-medium">{notification.content}</p>
+                                            <p className="text-sm text-nav mt-3">
+                                                {new Date(notification.createdAt).toLocaleString()}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteNotification(notification.id)}
+                                            className="hover:text-red-500"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
                                     {notification.type === "friend request" 
                                         && notification.from !== null 
                                         && !accepted.includes(notification.from) 
@@ -106,7 +85,7 @@ const NotificationsModal : React.FC<NotificationsModalProps> = ({ onClose, notif
             </div>
         </div>
     );
-    
 };
+    
 
 export default NotificationsModal;

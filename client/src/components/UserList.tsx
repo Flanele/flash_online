@@ -5,9 +5,11 @@ interface UserListProps {
     isLoading: boolean;
     handleAddFriend: (friendId: number) => void;
     handleCancelOrDelete: (friendId: number) => void;
+    setIsDeleteConfirmOpen: (open: boolean) => void;
+    setFriendToDelete: (friendId: number) => void;
 }
 
-const UserList: React.FC<UserListProps> = ({ users, accepted, pending, isLoading, handleAddFriend, handleCancelOrDelete }) => {
+const UserList: React.FC<UserListProps> = ({ users, accepted, pending, isLoading, handleAddFriend, handleCancelOrDelete, setFriendToDelete, setIsDeleteConfirmOpen }) => {
     const apiUrl = import.meta.env.VITE_APP_API_URL;
 
     const getInitial = (username: string) => {
@@ -45,7 +47,10 @@ const UserList: React.FC<UserListProps> = ({ users, accepted, pending, isLoading
                         {accepted.includes(user.id) ? (
                             <button
                                 className="px-4 py-2 rounded-md bg-red-400 hover:bg-red-500 text-white"
-                                onClick={() => handleCancelOrDelete(user.id)}
+                                onClick={() => {
+                                    setFriendToDelete(user.id); 
+                                    setIsDeleteConfirmOpen(true); 
+                                }}
                             >
                                 Delete Friend
                             </button>

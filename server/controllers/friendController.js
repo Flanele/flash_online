@@ -125,6 +125,16 @@ class FriendController {
     
             if (friendRequest.status === 'pending') {
                 await friendRequest.destroy();
+
+                await Notification.destroy({
+                    where: {
+                        [Op.or]: [
+                            { userId: friendId, from: userId, type: 'friend request' },
+                            { userId: userId, from: friendId, type: 'friend request' }
+                        ]
+                    }
+                });
+    
                 return res.status(200).json('Заявка в друзья успешно отклонена');
             }
     

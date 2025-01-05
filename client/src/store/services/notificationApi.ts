@@ -36,7 +36,14 @@ export const notificationApi = createApi({
             }),
             invalidatesTags: ['Notification'],
         }),
+        deleteNotification: builder.mutation<string, { id: number }>({
+            query: (notificationData) => ({
+                url: `api/notification/${notificationData.id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Notification'],
+        }),
     }),
 });
 
-export const { useFetchNotificationsQuery, useMarkAsSeenMutation } = notificationApi;
+export const { useFetchNotificationsQuery, useMarkAsSeenMutation, useDeleteNotificationMutation } = notificationApi;
