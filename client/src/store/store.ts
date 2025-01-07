@@ -13,6 +13,7 @@ import { notificationApi } from './services/notificationApi';
 import { userApi } from './services/userApi';
 import { friendApi } from './services/friendApi';
 import friendsSliceReducer from './slices/friendsSlice';
+import { messageApi } from './services/messageApi';
 
 export const store = configureStore({
     reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
         [notificationApi.reducerPath]: notificationApi.reducer,
         [userApi.reducerPath]: userApi.reducer,
         [friendApi.reducerPath]: friendApi.reducer,
+        [messageApi.reducerPath]: messageApi.reducer,
         filterGenre: filterGenreReducer,
         filterTerm: filterTermReducer,
         menu: menuReducer,
@@ -32,7 +34,7 @@ export const store = configureStore({
         friends: friendsSliceReducer,
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(api.middleware, genreApi.middleware, authApi.middleware, favoriteApi.middleware, commentApi.middleware, notificationApi.middleware, userApi.middleware, friendApi.middleware),  
+        getDefaultMiddleware().concat(api.middleware, genreApi.middleware, authApi.middleware, favoriteApi.middleware, commentApi.middleware, notificationApi.middleware, userApi.middleware, friendApi.middleware, messageApi.middleware),  
 });
 
 export type RootState = ReturnType<typeof store.getState>;

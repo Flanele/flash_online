@@ -3,14 +3,14 @@ import { useFetchNotificationsQuery, useMarkAsSeenMutation } from "../store/serv
 import { ApiNotification } from "../store/services/notificationApi";
 
  const useNotifications = () => {
-    const [unreadCount, setUnreadCount] = useState(0);
-    const { data: notifications, isLoading, error } = useFetchNotificationsQuery();
+    const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+    const { data: notifications, isLoading: isNotifLoading, error } = useFetchNotificationsQuery();
     const [markAsSeen] = useMarkAsSeenMutation();
 
     useEffect(() => {
         if (notifications) {
             const unread = notifications.filter((notif) => !notif.seen).length;
-            setUnreadCount(unread);
+            setUnreadNotifCount(unread);
         }
     }, [notifications]);
 
@@ -20,14 +20,14 @@ import { ApiNotification } from "../store/services/notificationApi";
             await Promise.all(
                 unseenNotifications.map((notif) => markAsSeen({ id: notif.id }).unwrap())
             );
-            setUnreadCount(0);
+            setUnreadNotifCount(0);
         }
     }, [notifications, markAsSeen]);
 
     return {
         notifications: notifications as ApiNotification[],
-        unreadCount,
-        isLoading,
+        unreadNotifCount,
+        isNotifLoading,
         error,
         markAllAsSeen,
     };

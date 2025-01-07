@@ -9,6 +9,7 @@ const fileUpload = require('express-fileupload');
 const path = require('path');
 const { userSockets } = require('./consts/socket');
 const NotificationService = require('./services/NotificationService');
+const MessageService = require('./services/MessageService');
 
 const app = express();
 
@@ -41,6 +42,7 @@ const io = new Server(server, {
 });
 
 const notificationService = new NotificationService(io, userSockets);
+const messageService = new MessageService(io, userSockets);
 
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
@@ -55,7 +57,8 @@ io.on('connection', (socket) => {
         console.log(`Socket для userId ${userId} зарегистрирован с ID ${socket.id}`);
         console.log('Зарегистрированные сокеты:', userSockets );
 
-        notificationService.sendNotification(userId)
+        notificationService.sendNotification(userId);
+        messageService.sendMessageToUser(userId);
     });
 
     socket.on('new_friend', (data) => {

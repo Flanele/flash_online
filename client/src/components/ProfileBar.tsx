@@ -1,4 +1,4 @@
-import messages from '../assets/messages.svg';
+import messagesImg from '../assets/messages.svg';
 import notificationsImg from '../assets/notifications.svg';
 import friends from '../assets/friends.svg';
 import { useSelector } from 'react-redux';
@@ -9,6 +9,8 @@ import NotificationsModal from './modals/NotificationsModal';
 import useNotifications from '../hooks/useNotifications';
 import useNotificationSocket from '../hooks/useNotificationSocket';
 import FriendsModal from './modals/FriendsModal';
+import useMessageSocket from '../hooks/useMessageSocket';
+import useMessages from '../hooks/useMessages';
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -17,7 +19,8 @@ const ProfileBar: React.FC = () => {
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
 
-    const { notifications, unreadCount, isLoading, markAllAsSeen } = useNotifications();
+    const { notifications, unreadNotifCount, isNotifLoading, markAllAsSeen } = useNotifications();
+    const { messages, unreadMesCount, isMesLoading, markAllAsRead } = useMessages();
 
     const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
 
@@ -25,7 +28,6 @@ const ProfileBar: React.FC = () => {
         await markAllAsSeen();
         setIsNotificationsModalOpen(false);
     };
-
 
     const getUserInitials = (username: string) => {
         const nameParts = username.split(' ');
@@ -35,21 +37,28 @@ const ProfileBar: React.FC = () => {
     };
 
     useNotificationSocket();
+    useMessageSocket();
 
     useEffect(() => {
         console.log('Обновленные уведомления:', notifications);
-    }, [notifications]);
+        console.log('Обновленные сообщения:', messages);
+    }, [notifications, messages]);
     
     return (
         <>
-            <button>
-                <img src={messages} alt="messages" />
+            <button className="relative">
+                <img src={messagesImg} alt="messages" />
+                {unreadMesCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {unreadMesCount}
+                    </span>
+                )}
             </button>
             <button onClick={() => setIsNotificationsModalOpen(true)} className="relative">
                 <img src={notificationsImg} alt="notifications" />
-                {unreadCount > 0 && (
+                {unreadNotifCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {unreadCount}
+                        {unreadNotifCount}
                     </span>
                 )}
             </button>
@@ -84,7 +93,7 @@ const ProfileBar: React.FC = () => {
                 <NotificationsModal
                     onClose={handleNotificationsClose}
                     notifications={notifications || []}
-                    isLoading={isLoading}
+                    isLoading={isNotifLoading}
                 />
             )}
             {isFriendsModalOpen && <FriendsModal onClose={() => setIsFriendsModalOpen(false)} />}
