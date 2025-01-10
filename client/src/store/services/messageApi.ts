@@ -30,14 +30,14 @@ export const messageApi = createApi({
         }),
         fetchMessagesWithUser: builder.query<ApiMessage[], { receiverId: number; lastMessageTimestamp?: string; limit?: number }>({
             query: ({ receiverId, lastMessageTimestamp, limit = 20 }) => ({
-                url: `api/message/user/${receiverId}`,
+                url: `api/message/${receiverId}`,
                 params: { lastMessageTimestamp, limit },
             }),
             providesTags: ['Message'],
         }),
         createMessage: builder.mutation<ApiMessage, { receiverId: number; text: string }>({
             query: ({ receiverId, text }) => ({
-                url: `api/message/user/${receiverId}`,
+                url: `api/message/${receiverId}`,
                 method: 'POST',
                 body: { text },
             }),
@@ -60,7 +60,7 @@ export const messageApi = createApi({
         }),
         markMessageAsRead: builder.mutation<ApiMessage, { id: number }>({
             query: ({ id }) => ({
-                url: `api/message/${id}/read`,
+                url: `api/message/${id}`,
                 method: 'PATCH',
             }),
             invalidatesTags: ['Message'],

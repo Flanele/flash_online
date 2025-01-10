@@ -68,6 +68,12 @@ io.on('connection', (socket) => {
         notificationService.sendFriendRequestNotification(friendId);
     });
 
+    socket.on('new_message', (data) => {
+        const { userId } = data;
+
+        messageService.sendMessageToUser(userId);
+    });
+
     socket.on('disconnect', () => {
         for (let userId in userSockets) {
             if (userSockets[userId] === socket.id) {

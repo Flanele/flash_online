@@ -161,7 +161,7 @@ class UserController {
 
     async getAllUsers(req, res, next) {
         try {
-            const userId = req.user?.id;
+            const userId = req.user.id;
             const searchTerm = req.query.searchTerm || null;
     
             const whereCondition = {
@@ -184,6 +184,25 @@ class UserController {
         } catch (error) {
             console.log(error);
             return next(ApiError.internal('Не получилось получить список пользователей'));
+        }
+    }
+
+    async getUserById(req, res, next) {
+        try {
+
+            const { id } = req.params;
+
+            const user = await User.findOne({where: { id }});
+
+            if (!user) {
+                return next(ApiError.badRequest('Юзера с таким id не существует'));
+            }
+
+            return res.status(200).json(user);
+
+        } catch(error) {
+            console.log(error);
+            return next(ApiError.internal('Ошибка при получении юзера по id'));
         }
     }
         

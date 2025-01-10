@@ -19,7 +19,43 @@ class FriendController {
             return next(ApiError.internal('Не получилось получить список друзей пользователя'));
         }
         
-    };
+    }
+
+    async searchFriends(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const searchTerm = req.query.searchTerm || '';  
+    
+            const friends = await Friend.findAll({
+                where: { userId: userId, status: 'accepted' },
+            });
+    
+            const friendIds = friends.map(friend => friend.friendId);
+    
+            if (friendIds.length === 0) {
+                return res.status(200).json([]);
+            }
+    
+            const whereCondition = {
+                id: { [Op.in]: friendIds },
+            };
+    
+            if (searchTerm) {
+                whereCondition.username = { [Op.like]: `%${searchTerm}%` };
+            }
+    
+            const users = await User.findAll({
+                where: whereCondition,
+            });
+    
+            return res.status(200).json(users);
+    
+        } catch (error) {
+            console.log(error);
+            return next(ApiError.internal('Ошибка при поиске друзей'));
+        }
+    }
+    
 
     async addFriend(req, res, next) {
         try {

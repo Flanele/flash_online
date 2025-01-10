@@ -4,25 +4,30 @@ import { AppDispatch } from '../store/store';
 import socket from '../socket/socket';
 import { messageApi } from '../store/services/messageApi';
 
-const useMessageSocket = () => {
+const useMessageSocket = (selectedFriend?: number | null) => {
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
         socket.on('new_message', (newMessage) => {
-            console.log('Новое сообщение:', newMessage);
+            if (selectedFriend && (newMessage.receiverId === selectedFriend || newMessage.senderId === selectedFriend)) {
+                dispatch(
+                    messageApi.util.updateQueryData('fetchMessagesWithUser', { receiverId: selectedFriend }, (draft) => {
+                        draft.push(newMessage);
+                    })
+                );
+            }
+
             dispatch(
                 messageApi.util.updateQueryData('fetchAllMessages', undefined, (draft) => {
-                    console.log('Кэш до изменения:', draft);
                     draft.push(newMessage);
-                    console.log('Кэш после изменения:', draft);
                 })
             );
         });
 
         return () => {
-            socket.disconnect();
+            socket.off('new_message');
         };
-    }, [dispatch]);
+    }, [dispatch, selectedFriend]);
 };
 
 export default useMessageSocket;

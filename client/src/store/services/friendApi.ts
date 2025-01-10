@@ -1,27 +1,29 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { User } from './userApi';
 
 interface Friend {
     id: number;
     userId: number;
     friendId: number;
     status: string;
-}
+};
 
 interface AddFriendPayload {
     friendId: number;
-}
+};
 
 interface FriendsListResponse {
     friends: Friend[];
-}
+};
 
 interface AcceptFriendPayload {
     friendId: number;
-}
+};
 
 interface DeclineFriendPayload {
     friendId: number;
-}
+};
+
 
 export const friendApi = createApi({
     reducerPath: 'friendApi',
@@ -62,6 +64,13 @@ export const friendApi = createApi({
                 method: 'DELETE',
             }),
         }),
+        searchFriends: builder.query<User[], string>({
+            query: (searchTerm) => { 
+                const params = new URLSearchParams();
+                if (searchTerm) params.append('searchTerm', searchTerm);
+                return `api/friend/search/?${params.toString()}`;
+            },
+        }),        
     }),
 });
 
@@ -69,7 +78,8 @@ export const {
     useGetFriendsListQuery, 
     useAddFriendMutation, 
     useAcceptFriendRequestMutation, 
-    useDeclineFriendRequestAndDeleteFriendMutation 
+    useDeclineFriendRequestAndDeleteFriendMutation,
+    useSearchFriendsQuery
 } = friendApi;
 
 

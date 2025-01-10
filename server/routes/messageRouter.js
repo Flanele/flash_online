@@ -1,8 +1,6 @@
 const router = require('express').Router();
 const messageController = require('../controllers/messageController');
-const { getAllMessagesWithUser } = require('../controllers/messageController');
 const authMiddleware = require('../middleware/authMiddleware');
-
 
 router.get('/:receiverId', authMiddleware, messageController.getAllMessagesWithUser);
 router.get('/', authMiddleware, messageController.getMessages);

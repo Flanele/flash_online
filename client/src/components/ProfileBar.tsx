@@ -11,6 +11,7 @@ import useNotificationSocket from '../hooks/useNotificationSocket';
 import FriendsModal from './modals/FriendsModal';
 import useMessageSocket from '../hooks/useMessageSocket';
 import useMessages from '../hooks/useMessages';
+import ChatModal from './modals/ChatModal';
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -18,6 +19,7 @@ const ProfileBar: React.FC = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
+    const [isChatsModalOpen, setIsChatsModalOpen] = useState(false);
 
     const { notifications, unreadNotifCount, isNotifLoading, markAllAsSeen } = useNotifications();
     const { messages, unreadMesCount, isMesLoading, markAllAsRead } = useMessages();
@@ -46,7 +48,9 @@ const ProfileBar: React.FC = () => {
     
     return (
         <>
-            <button className="relative">
+            <button className="relative"
+                onClick={() => setIsChatsModalOpen(true)}
+            >
                 <img src={messagesImg} alt="messages" />
                 {unreadMesCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -97,6 +101,7 @@ const ProfileBar: React.FC = () => {
                 />
             )}
             {isFriendsModalOpen && <FriendsModal onClose={() => setIsFriendsModalOpen(false)} />}
+            {isChatsModalOpen && <ChatModal onClose={() => setIsChatsModalOpen(false)} /> }
         </>
     );
 };

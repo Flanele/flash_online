@@ -28,7 +28,10 @@ export const userApi = createApi({
                 return `api/user?${params.toString()}` },
             providesTags: ['User'],
         }),
+        getUserById: builder.query<User, number>({
+            query: (id) => `api/user/${id}`
+        })
     }),
 });
 
-export const { useFetchUsersQuery } = userApi;
+export const { useFetchUsersQuery, useGetUserByIdQuery } = userApi;
