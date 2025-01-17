@@ -22,6 +22,11 @@ const useMessageSocket = (selectedFriend?: number | null) => {
                     draft.push(newMessage);
                 })
             );
+
+
+            if (newMessage.senderId !== selectedFriend) {
+                dispatch(messageApi.util.invalidateTags([{ type: 'UnreadCount', id: newMessage.senderId }]));
+            }
         });
 
         return () => {

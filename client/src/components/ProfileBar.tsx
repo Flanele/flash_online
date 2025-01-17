@@ -20,9 +20,10 @@ const ProfileBar: React.FC = () => {
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
     const [isChatsModalOpen, setIsChatsModalOpen] = useState(false);
+    const [selectedFriend, setSelectedFriend] = useState<number | null>(null);
 
     const { notifications, unreadNotifCount, isNotifLoading, markAllAsSeen } = useNotifications();
-    const { messages, unreadMesCount, isMesLoading, markAllAsRead } = useMessages();
+    const { messages, unreadMesCount, isMesLoading } = useMessages();
 
     const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
 
@@ -39,7 +40,7 @@ const ProfileBar: React.FC = () => {
     };
 
     useNotificationSocket();
-    useMessageSocket();
+    useMessageSocket(selectedFriend);
 
     useEffect(() => {
         console.log('Обновленные уведомления:', notifications);
@@ -101,7 +102,9 @@ const ProfileBar: React.FC = () => {
                 />
             )}
             {isFriendsModalOpen && <FriendsModal onClose={() => setIsFriendsModalOpen(false)} />}
-            {isChatsModalOpen && <ChatModal onClose={() => setIsChatsModalOpen(false)} /> }
+            {isChatsModalOpen && <ChatModal onClose={() => setIsChatsModalOpen(false)} 
+            selectedFriend={selectedFriend}
+            setSelectedFriend={setSelectedFriend} /> }
         </>
     );
 };

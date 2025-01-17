@@ -22,7 +22,7 @@ export const messageApi = createApi({
             return headers;
         },
     }),
-    tagTypes: ['Message'],
+    tagTypes: ['Message', 'UnreadCount'],
     endpoints: (builder) => ({
         fetchAllMessages: builder.query<ApiMessage[], void>({
             query: () => 'api/message',
@@ -34,6 +34,12 @@ export const messageApi = createApi({
                 params: { lastMessageTimestamp, limit },
             }),
             providesTags: ['Message'],
+        }),
+        getUnreadCountWithUser: builder.query<number, { senderId: number }>({
+            query: ({ senderId }) => ({
+                url: `api/message/unread/${senderId}`,
+            }),
+            providesTags: (result, error, { senderId }) => [{ type: 'UnreadCount', id: senderId }],
         }),
         createMessage: builder.mutation<ApiMessage, { receiverId: number; text: string }>({
             query: ({ receiverId, text }) => ({
@@ -58,13 +64,17 @@ export const messageApi = createApi({
             }),
             invalidatesTags: ['Message'],
         }),
-        markMessageAsRead: builder.mutation<ApiMessage, { id: number }>({
+        markMessageAsRead: builder.mutation<ApiMessage, { id: number; senderId: number }>({
             query: ({ id }) => ({
                 url: `api/message/${id}`,
                 method: 'PATCH',
             }),
-            invalidatesTags: ['Message'],
+            invalidatesTags: (result, error, { senderId }) => [
+                'Message',
+                { type: 'UnreadCount', id: senderId },
+            ],
         }),
+        
     }),
 });
 
@@ -75,4 +85,5 @@ export const {
     useEditMessageMutation,
     useDeleteMessageMutation,
     useMarkMessageAsReadMutation,
+    useGetUnreadCountWithUserQuery
 } = messageApi;

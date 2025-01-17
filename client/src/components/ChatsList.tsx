@@ -1,6 +1,5 @@
 import { User } from "../store/services/userApi";
-
-const apiUrl = import.meta.env.VITE_APP_API_URL;
+import ChatListItem from "./ChatListItem";
 
 interface ChatsListProps {
     friends: User[];
@@ -35,24 +34,12 @@ const ChatsList: React.FC<ChatsListProps> = ({
                 ) : (
                     friends.length > 0 ? (
                         friends.map((user) => (
-                            <li
+                            <ChatListItem
                                 key={user.id}
-                                className={`p-3 cursor-pointer ${
-                                    selectedFriend === user.id
-                                        ? "bg-purple-500 text-white"
-                                        : "bg-transparent"
-                                }`}
-                                onClick={() => onSelectFriend(user.id)}
-                            >
-                                <div className="flex items-center">
-                                    <img
-                                        src={`${apiUrl}/${user.avatar_url}`}
-                                        alt="avatar"
-                                        className="w-10 h-10 rounded-full object-cover mr-3"
-                                    />
-                                    <span>{user.username}</span>
-                                </div>
-                            </li>
+                                user={user}
+                                selectedFriend={selectedFriend}
+                                onSelectFriend={onSelectFriend}
+                            />
                         ))
                     ) : (
                         <p>No friends found</p>

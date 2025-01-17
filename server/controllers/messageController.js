@@ -79,6 +79,23 @@ class MessageController {
         }
     }
 
+    async getUnreadMessagesByUser(req, res, next) {
+        try {
+
+            const userId = req.user.id;
+            const { senderId } = req.params;
+
+            const unreadMessagesCount = await Message.count({where: {senderId: senderId, receiverId: userId, read: false}});
+
+            return res.status(200).json(unreadMessagesCount);
+
+
+        } catch(error) {
+            console.log(error);
+            return next(ApiError.badRequest('Ошибка при получении непрочитанных сообщений'));
+        }
+    }
+
     async createMessage(req, res, next) {
         try {
             const userId = req.user.id;
