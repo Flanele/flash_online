@@ -52,7 +52,7 @@ const useEditProfileModal = (onClose: () => void) => {
             dispatch(setAuth({ token: localStorage.getItem('token')!, user: updatedUserWithOldData }));
             setAvatarUrl(updatedUser.avatar_url ?? null);
             setPreviewAvatarUrl(null);
-            onClose();  // Закрываем модальное окно после успешного сохранения
+            onClose();  
         } catch (error) {
             console.error('Error updating user:', error);
         }

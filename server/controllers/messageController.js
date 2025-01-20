@@ -8,30 +8,29 @@ class MessageController {
         try {
             const userId = req.user.id;
             const { receiverId } = req.params;
-            const { lastMessageTimestamp, limit = 20 } = req.query;
-
+            const { page = 1, limit = 20 } = req.query;  
+    
+            const offset = (page - 1) * limit;  
+    
             const whereConditions = {
                 [Op.or]: [
                     { senderId: userId, receiverId: receiverId },
                     { senderId: receiverId, receiverId: userId }
                 ]
             };
-
-            if (lastMessageTimestamp) {
-                whereConditions.createdAt = { [Op.lt]: lastMessageTimestamp };
-            }
-
+    
             const messages = await Message.findAll({
                 where: whereConditions,
                 order: [['createdAt', 'DESC']],
-                limit: parseInt(limit, 10),
+                limit: parseInt(limit, 10),   
+                offset: parseInt(offset, 10),  
             });
-
+    
             const decryptedMessages = messages.map(message => ({
                 ...message.toJSON(),
-                text: decryptText(message.text)
+                text: decryptText(message.text), 
             }));
-
+    
             return res.status(200).json(decryptedMessages);
         } catch (error) {
             console.log(error);

@@ -74,6 +74,14 @@ io.on('connection', (socket) => {
         messageService.sendMessageToUser(userId);
     });
 
+    socket.on('read_message', (data) => {
+        const { userId } = data;
+
+        if (userSockets[userId]) {
+            io.to(userSockets[userId]).emit('read_message');
+        }
+    });
+
     socket.on('disconnect', () => {
         for (let userId in userSockets) {
             if (userSockets[userId] === socket.id) {

@@ -28,10 +28,10 @@ export const messageApi = createApi({
             query: () => 'api/message',
             providesTags: ['Message'],
         }),
-        fetchMessagesWithUser: builder.query<ApiMessage[], { receiverId: number; lastMessageTimestamp?: string; limit?: number }>({
-            query: ({ receiverId, lastMessageTimestamp, limit = 20 }) => ({
+        fetchMessagesWithUser: builder.query<ApiMessage[], { receiverId: number; page?: number; limit?: number }>({
+            query: ({ receiverId, page = 1, limit = 20 }) => ({
                 url: `api/message/${receiverId}`,
-                params: { lastMessageTimestamp, limit },
+                params: { page, limit }, 
             }),
             providesTags: ['Message'],
         }),
@@ -85,5 +85,6 @@ export const {
     useEditMessageMutation,
     useDeleteMessageMutation,
     useMarkMessageAsReadMutation,
-    useGetUnreadCountWithUserQuery
+    useGetUnreadCountWithUserQuery,
+    useLazyFetchMessagesWithUserQuery
 } = messageApi;

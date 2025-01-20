@@ -7,10 +7,10 @@ interface ChatListItemProps {
     user: User;
     selectedFriend: number | null;
     onSelectFriend: (friendId: number) => void;
-}
+};
 
 const ChatListItem: React.FC<ChatListItemProps> = ({ user, selectedFriend, onSelectFriend }) => {
-    const { data: unreadCount, isLoading } = useGetUnreadCountWithUserQuery({ senderId: user.id }); 
+    const { data: unreadCount } = useGetUnreadCountWithUserQuery({ senderId: user.id }); 
 
     return (
         <li
