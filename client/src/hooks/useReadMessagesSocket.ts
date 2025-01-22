@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { messageApi } from '../store/services/messageApi';
 
 
-const useMarkMessagesSocket = () => {
+const useReadMessagesSocket = () => {
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
@@ -19,4 +19,4 @@ const useMarkMessagesSocket = () => {
     };
 };
 
-export default useMarkMessagesSocket;
+export default useReadMessagesSocket;

@@ -46,6 +46,11 @@ const ProfileBar: React.FC = () => {
         console.log('Обновленные уведомления:', notifications);
         console.log('Обновленные сообщения:', messages);
     }, [notifications, messages]);
+
+    const handleCloseChats = () => {
+        setIsChatsModalOpen(false);
+        setSelectedFriend(null);
+    };
     
     return (
         <>
@@ -102,7 +107,7 @@ const ProfileBar: React.FC = () => {
                 />
             )}
             {isFriendsModalOpen && <FriendsModal onClose={() => setIsFriendsModalOpen(false)} />}
-            {isChatsModalOpen && <ChatModal onClose={() => setIsChatsModalOpen(false)} 
+            {isChatsModalOpen && <ChatModal onClose={handleCloseChats} 
             selectedFriend={selectedFriend}
             setSelectedFriend={setSelectedFriend} /> }
         </>

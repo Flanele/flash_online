@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useSearchFriendsQuery } from "../../store/services/friendApi";
 import ChatTextInput from "../ChatTextInput";
 import ChatsList from "../ChatsList";
-import { ApiMessage, useCreateMessageMutation, useFetchMessagesWithUserQuery, useMarkMessageAsReadMutation } from "../../store/services/messageApi";
 const apiUrl = import.meta.env.VITE_APP_API_URL;
-import { skipToken } from '@reduxjs/toolkit/query';
 import socket from '../../socket/socket';
-import useMarkMessagesSocket from "../../hooks/useMarkMessagesSocket";
+
+import useChats from "../../hooks/useChats";
+import { useDeleteMessageMutation } from "../../store/services/messageApi";
+import useReadMessagesSocket from "../../hooks/useReadMessagesSocket";
 
 interface ChatModalProps {
     onClose: () => void;
@@ -15,139 +16,39 @@ interface ChatModalProps {
 }
 
 const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelectedFriend }) => {
-    const [messages, setMessages] = useState<ApiMessage[]>([]);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [unreadMessageIds, setUnreadMessageIds] = useState<number[]>([]);
-    const [markMessageAsRead] = useMarkMessageAsReadMutation();
-    const [page, setPage] = useState(1);
-    const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);  
-    const [delayedFetch, setDelayedFetch] = useState(false);
 
-    const [retryFetch, setRetryFetch] = useState(false);
-    const [attempts, setAttempts] = useState(0);
+    const [deleteMessage] = useDeleteMessageMutation();
 
-    const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+    const {
+        messages,
+        isMessagesLoading,
+        errorLoadingMessages,
+        handleSendMessage,
+        messagesContainerRef,
+        resetChatState,
+        setMessages
+    } = useChats(selectedFriend);
 
     const { data: friends, isLoading: isFriendsLoading } = useSearchFriendsQuery(searchTerm);
 
-    const { data: userMessages, isLoading: isMessagesLoading, error: errorLoadingMessages } = useFetchMessagesWithUserQuery(
-        selectedFriend ? { receiverId: selectedFriend, page, limit: 20 } : skipToken,
-        { skip: !selectedFriend }
-    );
-
-    const [createMessage] = useCreateMessageMutation();
-
-    useEffect(() => {
-        if (userMessages && userMessages.length === 0 && attempts < 1) {
-            setRetryFetch(true);
-        };
-
-        if (userMessages && selectedFriend) {
-            const reversedMessages = [...userMessages].reverse();
-            setMessages((prevMessages) => {
-                const newMessages = reversedMessages.filter((msg) => msg.receiverId === selectedFriend || msg.senderId === selectedFriend);
-                return [...newMessages, ...prevMessages];
-            });
-
-            const allUnreadMessages = reversedMessages
-                .filter((msg) => !msg.read && msg.senderId === selectedFriend)
-                .map((msg) => msg.id);
-            setUnreadMessageIds(allUnreadMessages);
-
-            markMessagesAsRead(allUnreadMessages);
-        }
-    }, [userMessages, selectedFriend, markMessageAsRead]);
-
-    useEffect(() => {
-        if (retryFetch) {
-
-            console.log('retry fetching');
-            setAttempts(prev => prev + 1); 
-            setRetryFetch(false); 
-
-            setPage(1); 
-        }
-    }, [retryFetch]);
-
-    const markMessagesAsRead = async (unreadIds: number[]) => {
-        if (unreadIds.length === 0 || selectedFriend === null) return;
-
-        try {
-            await Promise.all(
-                unreadIds.map((id) =>
-                    markMessageAsRead({ id, senderId: selectedFriend })
-                        .unwrap()
-                        .catch((err) => {
-                            console.error(`Failed to mark message ${id} as read:`, err);
-                        })
-                )
-            );
-
-            setUnreadMessageIds([]);
-            socket.emit("read_message", { userId: selectedFriend });
-        } catch (error) {
-            console.error("Failed to mark messages as read:", error);
-        }
-    };
-
-    useEffect(() => {
-        if (messagesContainerRef.current && shouldScrollToBottom) {
-            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-        }
-    }, [messages, shouldScrollToBottom]);
-
-    const loadMoreMessages = () => {
-        if (messagesContainerRef.current && messagesContainerRef.current.scrollTop === 0) {
-            setPage((prevPage) => prevPage + 1);
-        }
-    };
-
-    useEffect(() => {
-        if (messagesContainerRef.current) {
-            const container = messagesContainerRef.current;
-            container.addEventListener('scroll', loadMoreMessages);
-
-            const handleScroll = () => {
-                if (container.scrollTop === 0) {
-                    setShouldScrollToBottom(false);  
-                }
-            };
-
-            container.addEventListener('scroll', handleScroll);
-
-            return () => {
-                container.removeEventListener('scroll', loadMoreMessages);
-                container.removeEventListener('scroll', handleScroll);
-            };
-        }
-    }, [messages]);
-
     const handleSelectFriend = (friendId: number) => {
         if (selectedFriend !== friendId) {
-            setPage(1);
-            setMessages([]);          
-            setUnreadMessageIds([]);
-            setShouldScrollToBottom(true);  
-        };
+            resetChatState(); 
+        }
 
         setSelectedFriend(friendId);
     };
 
-    const handleSendMessage = async (content: string) => {
-        if (!selectedFriend) return;
-
-        try {
-            const newMessage = await createMessage({ receiverId: selectedFriend, text: content }).unwrap();
-            setMessages((prev) => [...prev, newMessage]);
-            socket.emit("new_message", { userId: selectedFriend });
-            setShouldScrollToBottom(true);  
-        } catch (error) {
-            console.error("Failed to send message:", error);
-        }
+    const onDeleteMessage = (id: number) => {
+        deleteMessage({ id });
+        setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id));
     };
 
-    useMarkMessagesSocket();
+    const onEditMessage = (id: number) => {
+
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -222,6 +123,20 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
                                                 msg.senderId === selectedFriend ? "justify-start" : "justify-end"
                                             }`}
                                         >
+                                            {msg.senderId !== selectedFriend && (
+                                                <div className="absolute left-[20px] top-[30px] flex space-x-3">
+                                                    <button
+                                                        onClick={() => onEditMessage(msg.id)}
+                                                    >
+                                                        ✏️
+                                                    </button>
+                                                    <button
+                                                        onClick={() => onDeleteMessage(msg.id)}
+                                                    >
+                                                        🗑️
+                                                    </button>
+                                                </div>
+                                            )}
                                             <div
                                                 className={`p-3 rounded-lg max-w-xs break-words relative ${
                                                     msg.senderId === selectedFriend
@@ -265,7 +180,7 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
             </div>
         </div>
     );
-    
+
 };
 
 export default ChatModal;
