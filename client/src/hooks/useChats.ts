@@ -3,6 +3,8 @@ import { ApiMessage, useCreateMessageMutation, useFetchMessagesWithUserQuery, us
 import { skipToken } from "@reduxjs/toolkit/query";
 import socket from '../socket/socket';
 import useReadMessagesSocket from "./useReadMessagesSocket";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
 
 
 const useChats = (selectedFriend: number | null) => {
@@ -12,6 +14,7 @@ const useChats = (selectedFriend: number | null) => {
     const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
     const [retryFetch, setRetryFetch] = useState(false);
     const [attempts, setAttempts] = useState(0);
+    const user = useSelector((state: RootState) => state.auth.user);
 
     useReadMessagesSocket();
 
@@ -84,47 +87,13 @@ const useChats = (selectedFriend: number | null) => {
                 );
 
 
-                socket.emit("read_message", { userId: selectedFriend });
+                socket.emit("read_message", { userId: selectedFriend, receiverId: user?.id });
                 setUnreadMessageIds([]);               
             } catch (error) {
                 console.error("Failed to mark messages as read:", error);
             }
         };
-
-        useEffect(() => {
-            const handleReadMessage = ({ readMessageIds }: { readMessageIds: number[] }) => {
-                setMessages((prev) =>
-                    prev.map((message) =>
-                        readMessageIds.includes(message.id) ? { ...message, read: true } : message
-                    )
-                );
-            };
-    
-            socket.on("read_message", handleReadMessage);
-    
-            return () => {
-                socket.off("read_message", handleReadMessage);
-            };
-        }, []);
-    
-        useEffect(() => {
-            if (userMessages && selectedFriend) {
-                const reversedMessages = [...userMessages].reverse();
-    
-                setMessages(reversedMessages);
-    
-                const unreadMessages = reversedMessages
-                    .filter((msg) => !msg.read && msg.senderId === selectedFriend)
-                    .map((msg) => msg.id);
-    
-                setUnreadMessageIds(unreadMessages);
-    
-                if (unreadMessages.length) {
-                    markMessagesAsRead(unreadMessages);
-                }
-            }
-        }, [userMessages, selectedFriend]);
-    
+   
         useEffect(() => {
             if (messagesContainerRef.current && shouldScrollToBottom) {
                 messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
@@ -193,7 +162,27 @@ const useChats = (selectedFriend: number | null) => {
                 socket.off("new_message", handleNewMessage);
             };
         }, [selectedFriend]);
-
+        
+        useEffect(() => {
+            const handleReadMessage = ({ userId, receiverId }: { userId: number; receiverId: number }) => {
+                if (selectedFriend === receiverId) {
+                    setMessages((prev) =>
+                        prev.map((message) =>
+                            !message.read && message.senderId === userId
+                                ? { ...message, read: true }
+                                : message
+                        )
+                    );
+                }
+            };
+        
+            socket.on("read_message", handleReadMessage);
+        
+            return () => {
+                socket.off("read_message", handleReadMessage);
+            };
+        }, [selectedFriend]);
+        
 
         return {
             messages,

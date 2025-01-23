@@ -74,11 +74,10 @@ io.on('connection', (socket) => {
         messageService.sendMessageToUser(userId);
     });
 
-    socket.on('read_message', (data) => {
-        const { userId } = data;
+    socket.on('read_message', ({ userId, receiverId }) => {
 
         if (userSockets[userId]) {
-            io.to(userSockets[userId]).emit('read_message');
+            io.to(userSockets[userId]).emit('read_message', {userId, receiverId});
         }
     });
 

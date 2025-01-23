@@ -23,6 +23,10 @@ const useMessageSocket = (selectedFriend?: number | null) => {
                 })
             );
 
+            dispatch(
+                messageApi.util.invalidateTags([{ type: 'Message' }])
+            );
+
 
             if (newMessage.senderId !== selectedFriend) {
                 dispatch(messageApi.util.invalidateTags([{ type: 'UnreadCount', id: newMessage.senderId }]));

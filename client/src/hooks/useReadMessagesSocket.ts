@@ -9,8 +9,16 @@ const useReadMessagesSocket = () => {
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
-        socket.on('read_message', () => {
+        socket.on('read_message', ({ userId, receiverId }) => {
             dispatch(messageApi.util.invalidateTags([{ type: 'Message'}]));
+
+            dispatch(messageApi.util.updateQueryData('fetchMessagesWithUser', { receiverId }, (draft) => {
+                draft.forEach((message) => {
+                    if (!message.read && message.senderId === userId) {
+                        message.read = true;
+                    }
+                });
+            }));
         })
     }, [dispatch])
 
