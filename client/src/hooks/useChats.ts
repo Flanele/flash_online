@@ -5,6 +5,7 @@ import socket from '../socket/socket';
 import useReadMessagesSocket from "./useReadMessagesSocket";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import useDeleteMessageSocket from "./useDeleteMessageSocket";
 
 
 const useChats = (selectedFriend: number | null) => {
@@ -17,6 +18,7 @@ const useChats = (selectedFriend: number | null) => {
     const user = useSelector((state: RootState) => state.auth.user);
 
     useReadMessagesSocket();
+    useDeleteMessageSocket();
 
     const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -180,6 +182,20 @@ const useChats = (selectedFriend: number | null) => {
         
             return () => {
                 socket.off("read_message", handleReadMessage);
+            };
+        }, [selectedFriend]);
+
+        useEffect(() => {
+            const handleDeleteMessage = ({ id, senderId }: { id: number; senderId: number }) => {
+                if (selectedFriend === senderId) {
+                    setMessages((prev) => prev.filter((mes) => mes.id !== id));
+                }
+            };
+
+            socket.on('delete_message', handleDeleteMessage);
+
+            return () => {
+                socket.off('delete_message', handleDeleteMessage);
             };
         }, [selectedFriend]);
         

@@ -81,6 +81,13 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('delete_message', ({ userId, id, senderId }) => {
+
+        if (userSockets[userId]) {
+            io.to(userSockets[userId]).emit('delete_message', { userId, id, senderId });
+        }
+    });
+
     socket.on('disconnect', () => {
         for (let userId in userSockets) {
             if (userSockets[userId] === socket.id) {

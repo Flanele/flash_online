@@ -20,7 +20,7 @@ const useReadMessagesSocket = () => {
                 });
             }));
         })
-    }, [dispatch])
+    }, [dispatch]);
 
     return () => {
         socket.off('read_message');

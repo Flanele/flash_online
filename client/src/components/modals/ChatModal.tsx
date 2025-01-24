@@ -7,7 +7,8 @@ import socket from '../../socket/socket';
 
 import useChats from "../../hooks/useChats";
 import { useDeleteMessageMutation } from "../../store/services/messageApi";
-import useReadMessagesSocket from "../../hooks/useReadMessagesSocket";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 interface ChatModalProps {
     onClose: () => void;
@@ -18,6 +19,7 @@ interface ChatModalProps {
 const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelectedFriend }) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const user = useSelector((state: RootState) => state.auth.user);
 
     const [deleteMessage] = useDeleteMessageMutation();
 
@@ -41,9 +43,18 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
         setSelectedFriend(friendId);
     };
 
-    const onDeleteMessage = (id: number) => {
-        deleteMessage({ id });
-        setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id));
+    const onDeleteMessage = async (id: number) => {
+        if (!selectedFriend) return;
+
+        try {
+            await deleteMessage({ id }).unwrap();
+
+            socket.emit('delete_message', { userId: selectedFriend, id, senderId: user?.id });
+
+            setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id));
+        } catch (error) {
+            console.error("Failed to delete message:", error);
+        }
     };
 
     const onEditMessage = (id: number) => {
