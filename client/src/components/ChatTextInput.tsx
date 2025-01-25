@@ -1,15 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ApiMessage } from "../store/services/messageApi";
 
 interface ChatTextInputProps {
-    onSendMessage: (message: string) => void;
-}
+    onSendMessage: (message: string) => void; 
+    editingMessage: ApiMessage | null; 
+    onCancelEdit: () => void; 
+    onSaveEdit: (messageId: number, updatedText: string) => void; 
+};
 
-const ChatTextInput: React.FC<ChatTextInputProps> = ({ onSendMessage }) => {
-    const [messageInput, setMessageInput] = useState("");
+
+const ChatTextInput: React.FC<ChatTextInputProps> = ({
+    onSendMessage,
+    editingMessage,
+    onCancelEdit,
+    onSaveEdit,
+}) => {
+    const [messageInput, setMessageInput] = useState(editingMessage?.text || "");
+
+    useEffect(() => {
+        if (editingMessage) {
+            setMessageInput(editingMessage.text);
+        }
+    }, [editingMessage]);
 
     const handleSendMessage = () => {
         if (!messageInput.trim()) return;
-        onSendMessage(messageInput.trim());
+        if (editingMessage) {
+            onSaveEdit(editingMessage.id, messageInput.trim()); 
+            onCancelEdit(); 
+        } else {
+            onSendMessage(messageInput.trim()); 
+        }
         setMessageInput("");
         const textarea = document.getElementById("messageInput") as HTMLTextAreaElement;
         if (textarea) {
@@ -45,12 +66,32 @@ const ChatTextInput: React.FC<ChatTextInputProps> = ({ onSendMessage }) => {
                 }}
                 onKeyDown={handleKeyPress}
             />
-            <button
-                onClick={handleSendMessage}
-                className="ml-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
-            >
-                Send
-            </button>
+            {editingMessage ? (
+                <>
+                    <button
+                        onClick={handleSendMessage}
+                        className="ml-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+                    >
+                        Save
+                    </button>
+                    <button
+                        onClick={() => {
+                            onCancelEdit();
+                            setMessageInput("");
+                        }}
+                        className="ml-2 px-4 py-2 bg-light rounded-lg hover:bg-hover-btn hover:text-nav"
+                    >
+                        Cancel
+                    </button>
+                </>
+            ) : (
+                <button
+                    onClick={handleSendMessage}
+                    className="ml-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+                >
+                    Send
+                </button>
+            )}
         </div>
     );
 };

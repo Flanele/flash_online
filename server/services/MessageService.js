@@ -36,6 +36,7 @@ class MessageService {
                     receiverId: message.receiverId,
                     createdAt: message.createdAt,
                     read: message.read,
+                    edited: message.edited
                 });
 
                 console.log(`Сообщение отправлено пользователю ${userId}:`, decryptedMessage);

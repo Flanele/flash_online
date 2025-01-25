@@ -12,6 +12,9 @@ import FriendsModal from './modals/FriendsModal';
 import useMessageSocket from '../hooks/useMessageSocket';
 import useMessages from '../hooks/useMessages';
 import ChatModal from './modals/ChatModal';
+import useReadMessagesSocket from '../hooks/useReadMessagesSocket';
+import useDeleteMessageSocket from '../hooks/useDeleteMessageSocket';
+import useEditMessageSocket from '../hooks/useEditMessageSocket';
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -41,6 +44,9 @@ const ProfileBar: React.FC = () => {
 
     useNotificationSocket();
     useMessageSocket(selectedFriend);
+    useReadMessagesSocket();
+    useDeleteMessageSocket();
+    useEditMessageSocket();
 
     useEffect(() => {
         console.log('Обновленные уведомления:', notifications);

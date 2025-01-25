@@ -16,7 +16,7 @@ const app = express();
 const allowOrigin = "http://localhost:5173";
 app.use(cors({
     origin: allowOrigin, 
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true, 
 }));
@@ -35,7 +35,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: allowOrigin, 
-        methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+        methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true, 
     },
@@ -85,6 +85,13 @@ io.on('connection', (socket) => {
 
         if (userSockets[userId]) {
             io.to(userSockets[userId]).emit('delete_message', { userId, id, senderId });
+        }
+    });
+
+    socket.on('edit_message', ({ id, text, userId, senderId }) => {
+
+        if (userSockets[userId]) {
+            io.to(userSockets[userId]).emit('edit_message', { id, text, userId, senderId });
         }
     });
 

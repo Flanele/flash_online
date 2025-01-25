@@ -107,7 +107,8 @@ class MessageController {
                 senderId: userId,
                 receiverId: receiverId,
                 text: encryptedText,
-                read: false
+                read: false,
+                edited: false
             });
 
             return res.status(200).json({
@@ -159,6 +160,7 @@ class MessageController {
             const oldText = decryptText(message.text);
             const encryptedText = encryptText(text);
             message.text = encryptedText;
+            message.edited = true;
     
             await message.save();
     

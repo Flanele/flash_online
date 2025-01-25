@@ -2,11 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { ApiMessage, useCreateMessageMutation, useFetchMessagesWithUserQuery, useMarkMessageAsReadMutation } from "../store/services/messageApi";
 import { skipToken } from "@reduxjs/toolkit/query";
 import socket from '../socket/socket';
-import useReadMessagesSocket from "./useReadMessagesSocket";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
-import useDeleteMessageSocket from "./useDeleteMessageSocket";
-
 
 const useChats = (selectedFriend: number | null) => {
     const [messages, setMessages] = useState<ApiMessage[]>([]);
@@ -17,8 +14,6 @@ const useChats = (selectedFriend: number | null) => {
     const [attempts, setAttempts] = useState(0);
     const user = useSelector((state: RootState) => state.auth.user);
 
-    useReadMessagesSocket();
-    useDeleteMessageSocket();
 
     const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -198,6 +193,23 @@ const useChats = (selectedFriend: number | null) => {
                 socket.off('delete_message', handleDeleteMessage);
             };
         }, [selectedFriend]);
+
+        useEffect(() => {
+            const handleEditMessage = ({ id, text, userId, senderId }: { id: number; text: string; userId: number; senderId: number }) => {
+                if (selectedFriend === senderId) {
+                    setMessages((prevMessages) =>
+                        prevMessages.map((msg) => (msg.id === id ? { ...msg, text, edited: true } : msg))
+                    );
+                }
+            };
+
+            socket.on('edit_message', handleEditMessage);
+
+            return () => {
+                socket.off('edit_message', handleEditMessage);
+            };
+
+        }, [selectedFriend])
         
 
         return {

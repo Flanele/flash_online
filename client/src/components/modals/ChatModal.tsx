@@ -6,7 +6,7 @@ const apiUrl = import.meta.env.VITE_APP_API_URL;
 import socket from '../../socket/socket';
 
 import useChats from "../../hooks/useChats";
-import { useDeleteMessageMutation } from "../../store/services/messageApi";
+import { ApiMessage, useDeleteMessageMutation, useEditMessageMutation } from "../../store/services/messageApi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 
@@ -20,8 +20,10 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const user = useSelector((state: RootState) => state.auth.user);
+    const [editingMessage, setEditingMessage] = useState<ApiMessage | null>(null);
 
     const [deleteMessage] = useDeleteMessageMutation();
+    const [editMessage] = useEditMessageMutation();
 
     const {
         messages,
@@ -57,10 +59,24 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
         }
     };
 
-    const onEditMessage = (id: number) => {
-
+    const onEditMessage = (message: ApiMessage) => {
+        setEditingMessage(message);
     };
 
+    const handleSaveEdit = async (messageId: number, updatedText: string) => {
+        try {
+            const updatedMessage = await editMessage({ id: messageId, text: updatedText }).unwrap();
+            socket.emit("edit_message", { id: messageId, text: updatedText, userId: selectedFriend, senderId: user?.id });
+            setMessages((prevMessages) =>
+                prevMessages.map((msg) => (msg.id === messageId ? updatedMessage : msg))
+            );
+            setEditingMessage(null);            
+        } catch (error) {
+            console.error("Failed to edit message:", error);
+        }
+    };
+    
+    
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div
@@ -137,7 +153,7 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
                                             {msg.senderId !== selectedFriend && (
                                                 <div className="absolute left-[20px] top-[30px] flex space-x-3">
                                                     <button
-                                                        onClick={() => onEditMessage(msg.id)}
+                                                        onClick={() => onEditMessage(msg)}
                                                     >
                                                         ✏️
                                                     </button>
@@ -155,6 +171,15 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
                                                         : "bg-purple-500 text-white"
                                                 }`}
                                             >
+                                                {msg.edited && (
+                                                    <span
+                                                        className={`text-xs block mb-1 text-right ${
+                                                            msg.senderId === selectedFriend ? "text-nav" : "text-lighter"
+                                                        }`}
+                                                    >
+                                                        edited
+                                                    </span>
+                                                )}
                                                 <p>{msg.text}</p>
                                                 <div className="flex justify-between items-center mt-2">
                                                     <span
@@ -180,7 +205,12 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
                                 )}
                             </div>
     
-                            <ChatTextInput onSendMessage={handleSendMessage} />
+                            <ChatTextInput 
+                                onSendMessage={handleSendMessage} 
+                                editingMessage={editingMessage}
+                                onCancelEdit={() => setEditingMessage(null)}
+                                onSaveEdit={handleSaveEdit}
+                            />
                         </>
                     ) : (
                         <div className="flex-1 flex items-center justify-center">

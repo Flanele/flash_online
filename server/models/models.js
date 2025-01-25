@@ -49,6 +49,7 @@ const Message = sequelize.define('message', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     text: { type: DataTypes.TEXT, allowNull: false },
     read: { type: DataTypes.BOOLEAN, defaultValue: false },
+    edited: { type: DataTypes.BOOLEAN, defaultValue: false },
     senderId: { 
         type: DataTypes.INTEGER, 
         allowNull: false, 

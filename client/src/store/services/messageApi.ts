@@ -4,6 +4,7 @@ export interface ApiMessage {
     id: number;
     text: string;
     read: boolean;
+    edited: boolean;
     senderId: number;
     receiverId: number;
     createdAt: string;
@@ -85,6 +86,5 @@ export const {
     useEditMessageMutation,
     useDeleteMessageMutation,
     useMarkMessageAsReadMutation,
-    useGetUnreadCountWithUserQuery,
-    useLazyFetchMessagesWithUserQuery
+    useGetUnreadCountWithUserQuery
 } = messageApi;
