@@ -47,7 +47,7 @@ const ProfileBar: React.FC = () => {
     useReadMessagesSocket();
     useDeleteMessageSocket();
     useEditMessageSocket();
-
+   
     useEffect(() => {
         console.log('Обновленные уведомления:', notifications);
         console.log('Обновленные сообщения:', messages);

@@ -95,6 +95,10 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('get_online_users', () => {
+        socket.emit('online_users', Object.keys(userSockets));
+    });
+
     socket.on('disconnect', () => {
         for (let userId in userSockets) {
             if (userSockets[userId] === socket.id) {
@@ -103,6 +107,8 @@ io.on('connection', (socket) => {
                 break;
             }
         }
+
+        io.emit('online_users', Object.keys(userSockets));
     });
 });
 

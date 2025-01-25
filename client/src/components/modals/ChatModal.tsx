@@ -9,6 +9,7 @@ import useChats from "../../hooks/useChats";
 import { ApiMessage, useDeleteMessageMutation, useEditMessageMutation } from "../../store/services/messageApi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import useOnlineUsers from "../../hooks/useOnlineUsers";
 
 interface ChatModalProps {
     onClose: () => void;
@@ -24,6 +25,8 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
 
     const [deleteMessage] = useDeleteMessageMutation();
     const [editMessage] = useEditMessageMutation();
+
+    const { onlineUsers, isOnline } = useOnlineUsers();
 
     const {
         messages,
@@ -101,6 +104,7 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
                     onSelectFriend={handleSelectFriend}
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
+                    isOnline={isOnline}
                 />
     
                 <div className="w-2/3 flex flex-col pl-4">
@@ -120,9 +124,16 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
                                                 {friends.find((user) => user.id === selectedFriend)?.username[0].toUpperCase()}
                                             </div>
                                         )}
-                                        <h2 className="text-lg font-bold">
-                                            {friends.find((user) => user.id === selectedFriend)?.username}
-                                        </h2>
+                                        <div className="flex items-center space-x-3">
+                                            <h2 className="text-lg font-bold">
+                                                {friends.find((user) => user.id === selectedFriend)?.username}
+                                            </h2>
+                                            {isOnline(selectedFriend) && (
+                                                <span className="text-sm text-white bg-green-500 px-2 py-1 rounded-full mt-1">
+                                                    online
+                                                </span>
+                                            )}
+                                        </div>
                                     </>
                                 ) : (
                                     <p>Loading...</p>

@@ -8,6 +8,7 @@ interface ChatsListProps {
     onSelectFriend: (friendId: number) => void;
     searchTerm: string;
     setSearchTerm: (value: string) => void;
+    isOnline: (friendId: number) => boolean; 
 };
 
 const ChatsList: React.FC<ChatsListProps> = ({
@@ -17,6 +18,7 @@ const ChatsList: React.FC<ChatsListProps> = ({
     onSelectFriend,
     searchTerm,
     setSearchTerm,
+    isOnline 
 }) => {
     return (
         <div className="w-1/3 flex flex-col border-r border-gray-300 pr-4">
@@ -39,6 +41,7 @@ const ChatsList: React.FC<ChatsListProps> = ({
                                 user={user}
                                 selectedFriend={selectedFriend}
                                 onSelectFriend={onSelectFriend}
+                                isOnline={isOnline(user.id)}
                             />
                         ))
                     ) : (
