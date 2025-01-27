@@ -44,7 +44,7 @@ class CommentController {
                 include: [
                     {
                         model: User,
-                        attributes: ['username', 'avatar_url']  
+                        attributes: ['username', 'avatar_url', 'id']  
                     }
                 ],
                 limit,

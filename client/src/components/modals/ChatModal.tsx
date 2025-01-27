@@ -3,13 +3,11 @@ import { useSearchFriendsQuery } from "../../store/services/friendApi";
 import ChatTextInput from "../ChatTextInput";
 import ChatsList from "../ChatsList";
 const apiUrl = import.meta.env.VITE_APP_API_URL;
-import socket from '../../socket/socket';
 
 import useChats from "../../hooks/useChats";
-import { ApiMessage, useDeleteMessageMutation, useEditMessageMutation } from "../../store/services/messageApi";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
 import useOnlineUsers from "../../hooks/useOnlineUsers";
+import useEditAndDeleteMessage from "../../hooks/useEditAndDeleteMessage";
+import ChatMessage from "../ChatMessage";
 
 interface ChatModalProps {
     onClose: () => void;
@@ -20,12 +18,7 @@ interface ChatModalProps {
 const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelectedFriend }) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const user = useSelector((state: RootState) => state.auth.user);
-    const [editingMessage, setEditingMessage] = useState<ApiMessage | null>(null);
-
-    const [deleteMessage] = useDeleteMessageMutation();
-    const [editMessage] = useEditMessageMutation();
-
+   
     const { onlineUsers, isOnline } = useOnlineUsers();
 
     const {
@@ -38,6 +31,14 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
         setMessages
     } = useChats(selectedFriend);
 
+     const {
+        editingMessage,
+        onDeleteMessage,
+        onEditMessage,
+        handleSaveEdit,
+        setEditingMessage
+    } = useEditAndDeleteMessage(selectedFriend, setMessages);
+
     const { data: friends, isLoading: isFriendsLoading } = useSearchFriendsQuery(searchTerm);
 
     const handleSelectFriend = (friendId: number) => {
@@ -48,37 +49,6 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
         setSelectedFriend(friendId);
     };
 
-    const onDeleteMessage = async (id: number) => {
-        if (!selectedFriend) return;
-
-        try {
-            await deleteMessage({ id }).unwrap();
-
-            socket.emit('delete_message', { userId: selectedFriend, id, senderId: user?.id });
-
-            setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id));
-        } catch (error) {
-            console.error("Failed to delete message:", error);
-        }
-    };
-
-    const onEditMessage = (message: ApiMessage) => {
-        setEditingMessage(message);
-    };
-
-    const handleSaveEdit = async (messageId: number, updatedText: string) => {
-        try {
-            const updatedMessage = await editMessage({ id: messageId, text: updatedText }).unwrap();
-            socket.emit("edit_message", { id: messageId, text: updatedText, userId: selectedFriend, senderId: user?.id });
-            setMessages((prevMessages) =>
-                prevMessages.map((msg) => (msg.id === messageId ? updatedMessage : msg))
-            );
-            setEditingMessage(null);            
-        } catch (error) {
-            console.error("Failed to edit message:", error);
-        }
-    };
-    
     
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -155,63 +125,13 @@ const ChatModal: React.FC<ChatModalProps> = ({ onClose, selectedFriend, setSelec
                                     </div>
                                 ) : (
                                     messages.map((msg) => (
-                                        <div
+                                        <ChatMessage
                                             key={msg.id}
-                                            className={`relative flex ${
-                                                msg.senderId === selectedFriend ? "justify-start" : "justify-end"
-                                            }`}
-                                        >
-                                            {msg.senderId !== selectedFriend && (
-                                                <div className="absolute left-[20px] top-[30px] flex space-x-3">
-                                                    <button
-                                                        onClick={() => onEditMessage(msg)}
-                                                    >
-                                                        ✏️
-                                                    </button>
-                                                    <button
-                                                        onClick={() => onDeleteMessage(msg.id)}
-                                                    >
-                                                        🗑️
-                                                    </button>
-                                                </div>
-                                            )}
-                                            <div
-                                                className={`p-3 rounded-lg max-w-xs break-words relative ${
-                                                    msg.senderId === selectedFriend
-                                                        ? "bg-gray-200 text-black"
-                                                        : "bg-purple-500 text-white"
-                                                }`}
-                                            >
-                                                {msg.edited && (
-                                                    <span
-                                                        className={`text-xs block mb-1 text-right ${
-                                                            msg.senderId === selectedFriend ? "text-nav" : "text-lighter"
-                                                        }`}
-                                                    >
-                                                        edited
-                                                    </span>
-                                                )}
-                                                <p>{msg.text}</p>
-                                                <div className="flex justify-between items-center mt-2">
-                                                    <span
-                                                        className={`text-xs ${
-                                                            msg.senderId === selectedFriend ? "text-nav" : "text-lighter"
-                                                        }`}
-                                                    >
-                                                        {new Date(msg.createdAt).toLocaleString()}
-                                                    </span>
-                                                    {msg.senderId !== selectedFriend && (
-                                                        <span
-                                                            className={`text-sm ${
-                                                                msg.read ? "text-gray-200" : "text-purple-600"
-                                                            } ml-2`}
-                                                        >
-                                                            {msg.read ? "✓✓" : "✓"}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
+                                            message={msg}
+                                            isOwnMessage={msg.senderId !== selectedFriend}
+                                            onEditMessage={onEditMessage}
+                                            onDeleteMessage={onDeleteMessage}
+                                        />
                                     ))
                                 )}
                             </div>

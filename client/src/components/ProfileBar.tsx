@@ -1,6 +1,9 @@
 import messagesImg from '../assets/messages.svg';
 import notificationsImg from '../assets/notifications.svg';
 import friends from '../assets/friends.svg';
+import messagesImg_hover from '../assets/messages-hover.svg';
+import notificationsImg_hover from '../assets/notifications-hover.svg';
+import friends_hover from '../assets/friends-hover.svg';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { useEffect, useState } from 'react';
@@ -60,29 +63,64 @@ const ProfileBar: React.FC = () => {
     
     return (
         <>
-            <button className="relative"
+            <button
                 onClick={() => setIsChatsModalOpen(true)}
+                className="relative group"
             >
-                <img src={messagesImg} alt="messages" />
+                <img
+                    src={messagesImg}
+                    alt="messages"
+                    className="group-hover:hidden"
+                />
+                <img
+                    src={messagesImg_hover}
+                    alt="messages hover"
+                    className="hidden group-hover:block"
+                />
                 {unreadMesCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {unreadMesCount}
                     </span>
                 )}
             </button>
-            <button onClick={() => setIsNotificationsModalOpen(true)} className="relative">
-                <img src={notificationsImg} alt="notifications" />
+
+            <button
+                onClick={() => setIsNotificationsModalOpen(true)}
+                className="relative group"
+            >
+                <img
+                    src={notificationsImg}
+                    alt="notifications"
+                    className="group-hover:hidden"
+                />
+                <img
+                    src={notificationsImg_hover}
+                    alt="notifications hover"
+                    className="hidden group-hover:block"
+                />
                 {unreadNotifCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                         {unreadNotifCount}
                     </span>
                 )}
             </button>
+
             <button
                 onClick={() => setIsFriendsModalOpen(true)}
+                className="relative group"
             >
-                <img src={friends} alt="friends" />
+                <img
+                    src={friends}
+                    alt="friends"
+                    className="group-hover:hidden"
+                />
+                <img
+                    src={friends_hover}
+                    alt="friends hover"
+                    className="hidden group-hover:block"
+                />
             </button>
+
 
             <div className={`relative flex items-center gap-2 cursor-pointer ${!isProfileModalOpen && 'group'}`} onClick={() => setIsProfileModalOpen(true)}>
                 <div className="w-10 h-10 rounded-full bg-nav flex items-center justify-center overflow-hidden">

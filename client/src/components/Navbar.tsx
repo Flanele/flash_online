@@ -1,4 +1,5 @@
 import dots from '../assets/dots.svg';
+import dots_hover from '../assets/dots-hover.svg';
 import { Link } from "react-router-dom";
 
 import Search from "./Search";
@@ -32,9 +33,18 @@ const NavBar: React.FC = () => {
                 <div className="md:container md:mx-auto">
                     <div className="flex justify-between">
                         <div className="flex gap-[30px]">
-                            <button onClick={handleMenuOpen}>
-                                <img src={dots} alt="menu" />
-                            </button>
+                        <button onClick={handleMenuOpen} className="relative group">
+                            <img
+                                src={dots}
+                                alt="menu"
+                                className="group-hover:hidden"
+                            />
+                            <img
+                                src={dots_hover}
+                                alt="menu hover"
+                                className="hidden group-hover:block"
+                            />
+                        </button>
                             <button>
                                 <Link to="/" className="block text-center">
                                     <div className="font-logo text-3xl" style={{ lineHeight: '1' }}>

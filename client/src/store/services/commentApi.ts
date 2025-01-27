@@ -7,6 +7,7 @@ interface Comment {
     user: {
         username: string;
         avatar_url: string | null;
+        id: number;
     };
 }
 
