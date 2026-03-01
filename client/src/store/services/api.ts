@@ -12,7 +12,7 @@ export interface Game {
 export const api = createApi({
     reducerPath: 'api', 
     baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_APP_API_URL,
-        prepareHeaders: (headers, { getState }) => {
+        prepareHeaders: (headers) => {
             const token = localStorage.getItem('token');
             if (token) {
                 headers.set('Authorization', `Bearer ${token}`);
