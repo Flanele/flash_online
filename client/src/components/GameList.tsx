@@ -50,7 +50,7 @@ const GameList: React.FC<GameListProps> = ({ games, isLoading, error, menuOpen =
     const sortedGames = [...games].sort((a, b) => b.popularity_score - a.popularity_score);
 
     return (
-        <div className={`transition-all duration-200 ease-in-out transform ${menuOpen ? 'ml-[16.67%]' : 'ml-0'}`}>
+        <div className={`mb-[40px] transition-all duration-200 ease-in-out transform ${menuOpen ? 'ml-[16.67%]' : 'ml-0'}`}>
             <div className="md:container mx-auto mt-20">
                 <ul className="flex justify-center flex-wrap gap-[60px]">
                     {sortedGames.map((game) => (

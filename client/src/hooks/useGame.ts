@@ -1,9 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useAddToFavoritesMutation, useRemoveFromFavoritesMutation } from '../store/services/favoriteApi';
-import { RootState } from '../store/store';
-import { addGameToFavorites, removeGameFromFavorites } from '../store/slices/favoritesSlice';
-import { useFetchGameQuery } from '../store/services/api';
+import { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  useAddToFavoritesMutation,
+  useRemoveFromFavoritesMutation,
+} from "../store/services/favoriteApi";
+import { RootState } from "../store/store";
+import {
+  addGameToFavorites,
+  removeGameFromFavorites,
+} from "../store/slices/favoritesSlice";
+import { useFetchGameQuery } from "../store/services/api";
 
 interface UseGameResult {
   isLoading: boolean;
@@ -18,7 +24,9 @@ interface UseGameResult {
 }
 
 const useGame = (gameId: number): UseGameResult => {
-  const favoriteGames = useSelector((state: RootState) => state.favorites.favoriteGames);
+  const favoriteGames = useSelector(
+    (state: RootState) => state.favorites.favoriteGames
+  );
   const isAuthenticated = useSelector((state: RootState) => state.auth.token);
   const dispatch = useDispatch();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
@@ -47,27 +55,29 @@ const useGame = (gameId: number): UseGameResult => {
       }
       setIsFavorite(!isFavorite);
     } catch (error) {
-      console.error('Failed to toggle favorite:', error);
+      console.error("Failed to toggle favorite:", error);
     }
   };
 
   const startGame = async () => {
-    const container = document.querySelector('#flash-container');
-    const startButton = document.querySelector('#startButton') as HTMLElement | null;
+    const container = document.querySelector("#flash-container");
+    const startButton = document.querySelector(
+      "#startButton"
+    ) as HTMLElement | null;
     if (container && startButton && game?.file_url) {
       const ruffle = window.RufflePlayer.newest();
       const player = ruffle.createPlayer();
 
       playerRef.current = player;
 
-      player.style.width = '100%';
-      player.style.height = '100%';
+      player.style.width = "100%";
+      player.style.height = "100%";
       container.appendChild(player);
 
       player.load(game.file_url);
       player.play();
 
-      startButton.style.display = 'none';
+      startButton.style.display = "none";
     }
   };
 
