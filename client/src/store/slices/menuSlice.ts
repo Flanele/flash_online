@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface MenuState {
   menuOpen: boolean;
@@ -9,7 +9,7 @@ const initialState: MenuState = {
 };
 
 const menuSlice = createSlice({
-  name: 'menu',
+  name: "menu",
   initialState,
   reducers: {
     toggleMenu: (state) => {

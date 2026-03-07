@@ -70,7 +70,7 @@ const useAuthModal = () => {
               username: response.username,
               avatar_url: response.avatar_url || null,
             },
-          })
+          }),
         );
         localStorage.setItem("token", response.token);
       } else {
@@ -86,14 +86,15 @@ const useAuthModal = () => {
               username,
               avatar_url: null,
             },
-          })
+          }),
         );
         localStorage.setItem("token", response.token);
       }
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       setErrorMessage(
-        error.data?.message || "Something went wrong. Please try again."
+        (error as { data?: { message?: string } }).data?.message ||
+          "Something went wrong. Please try again.",
       );
     }
   };

@@ -1,8 +1,19 @@
 declare global {
-    interface Window {
-      RufflePlayer: any;  
-    }
+  interface RufflePlayerElement extends HTMLElement {
+    load: (url: string) => void;
+    play: () => void;
+    pause: () => void;
   }
-  
-  export {}; 
-  
+
+  interface RuffleConstructor {
+    createPlayer: () => RufflePlayerElement;
+  }
+
+  interface Window {
+    RufflePlayer: {
+      newest: () => RuffleConstructor;
+    };
+  }
+}
+
+export {};

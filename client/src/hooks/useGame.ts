@@ -9,7 +9,7 @@ import {
   addGameToFavorites,
   removeGameFromFavorites,
 } from "../store/slices/favoritesSlice";
-import { useFetchGameQuery } from "../store/services/api";
+import { Game, useFetchGameQuery } from "../store/services/api";
 
 interface UseGameResult {
   isLoading: boolean;
@@ -18,23 +18,22 @@ interface UseGameResult {
   startGame: () => void;
   playGame: () => void;
   pauseGame: () => void;
-  playerRef: React.RefObject<any>;
+  playerRef: React.RefObject<RufflePlayerElement | null>;
   gameNotFound: boolean;
-  game: any;
+  game: Game | undefined;
 }
 
 const useGame = (gameId: number): UseGameResult => {
   const favoriteGames = useSelector(
-    (state: RootState) => state.favorites.favoriteGames
+    (state: RootState) => state.favorites.favoriteGames,
   );
-  const isAuthenticated = useSelector((state: RootState) => state.auth.token);
   const dispatch = useDispatch();
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [addToFavorites] = useAddToFavoritesMutation();
   const [removeFromFavorites] = useRemoveFromFavoritesMutation();
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<RufflePlayerElement | null>(null);
 
-  const { data: game, error, isLoading } = useFetchGameQuery(gameId);
+  const { data: game, isLoading } = useFetchGameQuery(gameId);
 
   const gameNotFound = !game;
 
@@ -62,7 +61,7 @@ const useGame = (gameId: number): UseGameResult => {
   const startGame = async () => {
     const container = document.querySelector("#flash-container");
     const startButton = document.querySelector(
-      "#startButton"
+      "#startButton",
     ) as HTMLElement | null;
     if (container && startButton && game?.file_url) {
       const ruffle = window.RufflePlayer.newest();
