@@ -16,7 +16,7 @@ const NavBar: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
+    (state: RootState) => state.auth.isAuthenticated,
   );
 
   const handleMenuOpen = () => {

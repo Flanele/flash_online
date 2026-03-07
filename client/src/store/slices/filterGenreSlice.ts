@@ -1,21 +1,21 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface FilterGenreState {
-    genreId: number | null,
-};
+  genreId: number | null;
+}
 
 const initialState: FilterGenreState = {
-    genreId: null,
+  genreId: null,
 };
 
 const filterGenreSlice = createSlice({
-    name: 'filterGenre',
-    initialState,
-    reducers: {
-        setGenre(state, action: PayloadAction<number | null>) {
-            state.genreId = action.payload;
-        }
-    }
+  name: "filterGenre",
+  initialState,
+  reducers: {
+    setGenre(state, action: PayloadAction<number | null>) {
+      state.genreId = action.payload;
+    },
+  },
 });
 
 export const { setGenre } = filterGenreSlice.actions;

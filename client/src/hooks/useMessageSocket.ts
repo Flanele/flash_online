@@ -20,8 +20,8 @@ const useMessageSocket = (selectedFriend?: number | null) => {
             { receiverId: selectedFriend },
             (draft) => {
               draft.push(newMessage);
-            }
-          )
+            },
+          ),
         );
       }
 
@@ -31,8 +31,8 @@ const useMessageSocket = (selectedFriend?: number | null) => {
           undefined,
           (draft) => {
             draft.push(newMessage);
-          }
-        )
+          },
+        ),
       );
 
       dispatch(messageApi.util.invalidateTags([{ type: "Message" }]));
@@ -41,7 +41,7 @@ const useMessageSocket = (selectedFriend?: number | null) => {
         dispatch(
           messageApi.util.invalidateTags([
             { type: "UnreadCount", id: newMessage.senderId },
-          ])
+          ]),
         );
       }
     });

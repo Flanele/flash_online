@@ -1,15 +1,15 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface FavoritesState {
   favoriteGames: number[];
-};
+}
 
 const initialState: FavoritesState = {
   favoriteGames: [],
 };
 
 const favoritesSlice = createSlice({
-  name: 'favorites',
+  name: "favorites",
   initialState,
   reducers: {
     setFavoriteGames: (state, action: PayloadAction<number[]>) => {
@@ -21,10 +21,13 @@ const favoritesSlice = createSlice({
       }
     },
     removeGameFromFavorites: (state, action: PayloadAction<number>) => {
-      state.favoriteGames = state.favoriteGames.filter(id => id !== action.payload);
+      state.favoriteGames = state.favoriteGames.filter(
+        (id) => id !== action.payload,
+      );
     },
   },
 });
 
-export const { setFavoriteGames, addGameToFavorites, removeGameFromFavorites } = favoritesSlice.actions;
+export const { setFavoriteGames, addGameToFavorites, removeGameFromFavorites } =
+  favoritesSlice.actions;
 export default favoritesSlice.reducer;
