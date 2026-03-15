@@ -36,7 +36,7 @@ const Game: React.FC = () => {
 
   return (
     <div className={`mt-12 transform ${menuOpen ? 'ml-[16.67%]' : 'ml-0'}`}>
-      <h1 className="text-center text-4xl font-bold">{game.title}</h1>
+      <h1 className="text-center text-4xl font-bold">{game?.title}</h1>
 
       <div
         id="flash-container"
@@ -90,7 +90,7 @@ const Game: React.FC = () => {
       </div>
 
       <div className="sm:container mx-auto mt-24">
-        <p className="text-center">{game.description}</p>
+        <p className="text-center">{game?.description}</p>
       </div>
 
       <div className="sm:container mx-auto mt-20">
