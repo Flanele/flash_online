@@ -23,7 +23,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { onlineUsers, isOnline } = useOnlineUsers();
+  const { isOnline } = useOnlineUsers();
 
   const {
     messages,

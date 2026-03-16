@@ -1,7 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 9000;
 const cors = require("cors");
 const sequelize = require("./db");
 const router = require("./routes/index");

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { User } from "../store/services/userApi";
 
 interface UserListProps {
@@ -21,6 +22,8 @@ const UserList: React.FC<UserListProps> = ({
   setFriendToDelete,
   setIsDeleteConfirmOpen,
 }) => {
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+
   const apiUrl = import.meta.env.VITE_APP_API_URL;
 
   const getInitial = (username: string) => {
@@ -45,6 +48,9 @@ const UserList: React.FC<UserListProps> = ({
                   src={`${apiUrl}/${user.avatar_url}`}
                   alt={`${user.username}'s avatar`}
                   className="w-14 h-14 rounded-full cursor-pointer object-cover"
+                  onClick={() =>
+                    setEnlargedImage(`${apiUrl}/${user.avatar_url}`)
+                  }
                 />
               ) : (
                 <div className="w-14 h-14 rounded-full bg-lighter flex items-center justify-center text-lg font-semibold text-nav">
@@ -82,6 +88,23 @@ const UserList: React.FC<UserListProps> = ({
             )}
           </li>
         ))}
+        {enlargedImage && (
+          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+            <div className="relative">
+              <img
+                src={enlargedImage}
+                alt="Enlarged avatar"
+                className="max-w-full max-h-full rounded-lg shadow-lg"
+              />
+              <button
+                className="absolute top-2 right-2 bg-header rounded-full p-2 shadow-lg"
+                onClick={() => setEnlargedImage(null)}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
       </ul>
     </div>
   );
